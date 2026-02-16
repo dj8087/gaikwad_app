@@ -6,6 +6,7 @@ import RegistrationScreen from '../screens/RegistrationScreen';
 import SplashScreen from '../screens/SplashScreen';
 import SplashScreen1 from '../screens/SplashScreen1';
 import Dashbaord from './TabsNavigator';
+import FilteredProductsScreen from '../screens/FilteredProductsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +17,7 @@ export type RootStackParamList = {
   RegistrationScreen: undefined;
   Dashbaord: undefined;
   ProductDetail: {};
+  FilteredProducts: {};
 };
 
 
@@ -28,6 +30,7 @@ export default function RootNavigator() {
       <Stack.Screen name="AccessTokenScreen" component={AccessTokenScreen} />
       <Stack.Screen name="RegistrationScreen" component={RegistrationScreen} />
       <Stack.Screen name="ProductDetail" component={ProductDetailsScreen} />
+      <Stack.Screen name="FilteredProducts" component={FilteredProductsScreen} />
     </Stack.Navigator>
   );
 }

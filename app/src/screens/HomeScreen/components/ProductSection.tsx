@@ -6,7 +6,8 @@ import {
     Dimensions,
     FlatList,
     StyleSheet,
-    View
+    View,
+    ActivityIndicator
 } from "react-native";
 import ProductCard from "./ProductCard";
 
@@ -23,20 +24,26 @@ interface Product {
 }
 
 interface Props {
-    title: string;
+    title?: string;
     data: Product[];
     onSeeAll?: () => void;
     onProductPress?: (item: Product) => void;
+    onEndReached?: () => void;
+    loading?: boolean;
+    ListEmptyComponent?: React.ComponentType<any> | React.ReactElement | null | undefined;
 }
 
 const { width } = Dimensions.get("screen");
 const CARD_WIDTH = (width - 18 * 2 - 16) / 2;
 
-export default function ProductSection({
+export function ProductSection({
     title,
     data,
     onSeeAll,
     onProductPress,
+    onEndReached,
+    loading,
+    ListEmptyComponent,
 }: Props) {
 
     const renderItem = ({ item }: any) => (
@@ -46,9 +53,14 @@ export default function ProductSection({
         />
     );
 
+    const renderFooter = () => {
+        if (!loading) return null;
+        return <ActivityIndicator style={{ marginVertical: 20 }} />;
+    };
+
     return (
-        <View style={{ marginTop: 20 }}>
-            <SeeAllHeader title={title} onPress={onSeeAll} />
+        <View style={{ flex:1, marginTop: 20 }}>
+            {title && <SeeAllHeader title={title} onPress={onSeeAll} />}
             <FlatList
                 data={data}
                 renderItem={renderItem}
@@ -56,11 +68,15 @@ export default function ProductSection({
                 keyExtractor={(item) => item.id.toString()}
                 columnWrapperStyle={styles.columnWrapper}
                 contentContainerStyle={styles.container}
-                initialNumToRender={4}
-                maxToRenderPerBatch={4}
+                initialNumToRender={10}
+                maxToRenderPerBatch={10}
                 windowSize={5}
                 removeClippedSubviews
                 showsVerticalScrollIndicator={false}
+                onEndReached={onEndReached}
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={renderFooter}
+                ListEmptyComponent={ListEmptyComponent}
             />
         </View>
     );
@@ -68,13 +84,14 @@ export default function ProductSection({
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 18,
+        paddingHorizontal: 10,
         paddingTop: 10,
         paddingBottom: 20,
     },
     columnWrapper: {
         justifyContent: "space-between",
         marginBottom: 18,
+        gap: 10,
     },
     row: {
         flexDirection: "row",

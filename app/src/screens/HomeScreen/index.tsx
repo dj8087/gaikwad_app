@@ -13,7 +13,7 @@ import colors from '../../theme/colors';
 import { useAndroidBackExit } from '../../utils/useAndroidBackHandler';
 import CategoryList from './components/CategoryList';
 import Header from './components/Header';
-import ProductSection from './components/ProductSection';
+import { ProductSection } from './components/ProductSection';
 
 export default function HomeScreen() {
   const navigation = useAppNavigation();
@@ -27,7 +27,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (token) {
-      dispatch(fetchDesignList({ token, resultPerPage: 3 }));
+      dispatch(fetchDesignList({ token, size: 4, page: 0 }));
     }
   }, [token]);
 
@@ -57,7 +57,7 @@ export default function HomeScreen() {
           <CategoryList />
           {!loading && !error && (
             <ProductSection
-              title="Latest Designs"
+              title="Latest Designs:"
               data={designs}
               onSeeAll={() => console.log("SEE ALL DESIGNS")}
               onProductPress={onProductClick}
