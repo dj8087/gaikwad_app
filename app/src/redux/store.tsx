@@ -26,6 +26,8 @@ const persistConfig = {
     whitelist: ["auth", "profile"],
 };
 
+import categoryReducer from "../api/categorySlice";
+
 const rootReducer = combineReducers({
     auth: authReducer,
     profile: profileReducer,
@@ -35,6 +37,7 @@ const rootReducer = combineReducers({
     vistorsReducer: vistorsReducer,
     imageSelectorReducer: imageSelectorSlice,
     productInquiryReducer: productInquiryReducer,
+    category: categoryReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

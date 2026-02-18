@@ -1,31 +1,82 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, FlatList, ActivityIndicator } from 'react-native';
 import ScreenWrapper from '../components/ScreenWrapper';
-import { categories } from '../data/categories';
 import { Ionicons } from '@expo/vector-icons';
 import AppButton from '../components/AppButton';
 import Slider from '@react-native-community/slider';
 import useAppNavigation from '../hooks/useAppNavigation';
+import useAppDispatch from '../hooks/useAppDispatch';
+import {useAuthData} from '../hooks/useAuthData';
+import { useSelector } from 'react-redux';
+import { fetchCategories } from '../api/categorySlice';
+import { RootState } from '../redux/store';
+// import useAuthData from '../hooks/useAuthData';
 
-const subCategories = [
-    { id: 1, name: 'Gold' },
-    { id: 2, name: 'Diamond' },
-];
+const DropdownModal = ({ visible, items, onSelect, onClose }) => (
+    <Modal
+        visible={visible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={onClose}
+    >
+        <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+                <FlatList
+                    data={items}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            style={styles.modalItem}
+                            onPress={() => {
+                                onSelect(item);
+                                onClose();
+                            }}
+                        >
+                            <Text>{item.name || item}</Text>
+                        </TouchableOpacity>
+                    )}
+                />
+                <AppButton title="Close" onPress={onClose} />
+            </View>
+        </View>
+    </Modal>
+);
 
 const FilterScreen = () => {
     const navigation = useAppNavigation();
+    const dispatch = useAppDispatch();
+    const { token } = useAuthData();
+    const { categories, loading, error } = useSelector((state: RootState) => state.category);
+
     const [searchText, setSearchText] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<any>('All');
     const [selectedSubCategory, setSelectedSubCategory] = useState<any>('All');
+    const [subCategories, setSubCategories] = useState<any[]>([]);
     const [minWeight, setMinWeight] = useState(1);
     const [maxWeight, setMaxWeight] = useState(30);
+    const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
+    const [isSubCategoryModalVisible, setSubCategoryModalVisible] = useState(false);
 
-    // TODO: Implement modal for dropdowns
-    const renderDropdown = (label, selectedValue, options) => (
+    useEffect(() => {
+        if (token) {
+            dispatch(fetchCategories({ token }));
+        }
+    }, [dispatch, token]);
+
+    useEffect(() => {
+        if (selectedCategory && selectedCategory !== 'All' && selectedCategory.subCat) {
+            setSubCategories(selectedCategory.subCat);
+        } else {
+            setSubCategories([]);
+        }
+        setSelectedSubCategory('All');
+    }, [selectedCategory]);
+
+    const renderDropdown = (label, selectedValue, onPress) => (
         <View style={styles.filterSection}>
             <Text style={styles.label}>{label}</Text>
-            <TouchableOpacity style={styles.dropdown}>
-                <Text>{selectedValue.name || selectedValue}</Text>
+            <TouchableOpacity style={styles.dropdown} onPress={onPress}>
+                <Text>{selectedValue?.name || selectedValue}</Text>
                 <Ionicons name="chevron-down" size={20} color="black" />
             </TouchableOpacity>
         </View>
@@ -55,8 +106,28 @@ const FilterScreen = () => {
                     />
                 </View>
 
-                {renderDropdown('Category', selectedCategory, ['All', ...categories])}
-                {renderDropdown('Sub Category', selectedSubCategory, ['All', ...subCategories])}
+                {loading && <ActivityIndicator size="large" color="#0000ff" />}
+                {error && <Text>Error fetching categories: {error}</Text>}
+                {!loading && !error && (
+                    <>
+                        {renderDropdown('Category', selectedCategory, () => setCategoryModalVisible(true))}
+                        {renderDropdown('Sub Category', selectedSubCategory, () => setSubCategoryModalVisible(true))}
+                    </>
+                )}
+
+                <DropdownModal
+                    visible={isCategoryModalVisible}
+                    items={['All', ...categories]}
+                    onSelect={setSelectedCategory}
+                    onClose={() => setCategoryModalVisible(false)}
+                />
+
+                <DropdownModal
+                    visible={isSubCategoryModalVisible}
+                    items={['All', ...subCategories]}
+                    onSelect={setSelectedSubCategory}
+                    onClose={() => setSubCategoryModalVisible(false)}
+                />
 
                 <View style={styles.filterSection}>
                     <Text style={styles.label}>Weight Range (in gms)</Text>
@@ -135,6 +206,24 @@ const styles = StyleSheet.create({
     sliderContainer: {
         marginBottom: 10,
     },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+    },
+    modalItem: {
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+    },
 });
+
 
 export default FilterScreen;

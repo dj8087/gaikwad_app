@@ -29,18 +29,27 @@ export default function Index() {
   }, []);
 
   const bootstrapApp = async () => {
+    console.log("Starting app bootstrap...");
     try {
-      let baseUrl = await AsyncStorage.getItem(STORAGE_KEYS.APP_CONFIG);
+      let baseUrl = 'http://192.168.1.24:3880' //await AsyncStorage.getItem(STORAGE_KEYS.APP_CONFIG);
+      console.log("Attempting to get base URL from AsyncStorage...");
 
       if (!baseUrl) {
+        console.log("Base URL not found in AsyncStorage, fetching from remote...");
         baseUrl = await fetchAndStoreBaseUrl();
+        console.log("Base URL fetched and stored successfully.");
+      } else {
+        console.log("Base URL found in AsyncStorage:", baseUrl);
       }
 
-      setBaseUrl(baseUrl + "/v1/ajgold/site/api/");
+      const apiUrl = `${baseUrl}/v1/ajgold/site/api/`;
+      setBaseUrl(apiUrl);
+      console.log("Base URL set for API:", apiUrl);
 
     } catch (error) {
-      console.log("App bootstrap failed", error);
+      console.error("App bootstrap failed", error);
     } finally {
+      console.log("Bootstrap process finished, setting app to ready.");
       setAppReady(true);
     }
   };
