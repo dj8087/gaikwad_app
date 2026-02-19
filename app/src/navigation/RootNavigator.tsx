@@ -24,8 +24,8 @@ export type RootStackParamList = {
 export default function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Splash1" component={SplashScreen1} />
       <Stack.Screen name="Splash" component={SplashScreen} />
+      <Stack.Screen name="Splash1" component={SplashScreen1} />
       <Stack.Screen name="Dashbaord" component={Dashbaord} />
       <Stack.Screen name="AccessTokenScreen" component={AccessTokenScreen} />
       <Stack.Screen name="RegistrationScreen" component={RegistrationScreen} />

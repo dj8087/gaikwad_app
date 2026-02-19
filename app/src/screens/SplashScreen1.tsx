@@ -39,7 +39,7 @@ export default function SplashScreen1() {
       } else {
         navigation.replace("AccessTokenScreen");
       }
-    }, 5000);
+    }, 50);
 
     return () => clearTimeout(timer);
   }, [token, user, navigation]);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import ScreenWrapper from "../components/ScreenWrapper";
@@ -17,8 +17,16 @@ const FilteredProductsScreen = () => {
   const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
   const { token } = useAuthData();
-  const { category, subCategory, weightRangeStart, weightRangeEnd } =
-    route.params as any;
+  const params = route.params as any || {};
+
+  const {
+    category = null,
+    subCategory = null,
+    weightRangeStart = null,
+    weightRangeEnd = null,
+  } = params;
+
+  const onEndReachedCalledDuringMomentum = useRef(true);
 
   const [page, setPage] = useState(0);
   const [designs, setDesigns] = useState([]);
@@ -27,8 +35,11 @@ const FilteredProductsScreen = () => {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
+    setPage(0);
+    setDesigns([]);
     loadDesigns(0);
-  }, [category, subCategory, weightRangeStart, weightRangeEnd]);
+  }, []);
+
 
   const loadDesigns = (newPage: number) => {
     if (loading || (newPage >= totalPages && totalPages !== 0)) {
@@ -52,7 +63,7 @@ const FilteredProductsScreen = () => {
     )
       .unwrap()
       .then((res) => {
-        setDesigns(newPage === 0 ? res.designs : [...designs, ...res.designs]);
+        setDesigns(prev => newPage === 0 ? res.designs : [...prev, ...res.designs]);
         setPage(res.currentPage);
         setTotalPages(res.totalPages);
       })
@@ -77,18 +88,26 @@ const FilteredProductsScreen = () => {
   }
 
   return (
-    <ScreenWrapper>
-      <AppHeader title="Filtered Products" />
+    <>
+      <AppHeader title="Filtered Products" onBackPress={() => navigation.goBack()} />
       <View style={{ flex: 1, paddingHorizontal: 15 }}>
         <ProductSection
           data={designs}
-          onEndReached={handleLoadMore}
           loading={loading}
-          ListEmptyComponent={!loading ? <NoData /> : null}
+          ListEmptyComponent={<NoData />}
           onProductPress={onProductClick}
+          onEndReached={() => {
+            if (!onEndReachedCalledDuringMomentum.current) {
+              handleLoadMore();
+              onEndReachedCalledDuringMomentum.current = true;
+            }
+          }}
+          onMomentumScrollBegin={() => {
+            onEndReachedCalledDuringMomentum.current = false;
+          }}
         />
       </View>
-    </ScreenWrapper>
+    </>
   );
 };
 

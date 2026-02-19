@@ -6,6 +6,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ScreenWrapperProps {
   children: React.ReactNode;
@@ -21,20 +22,20 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
   backgroundColor = '#fff',
 }) => {
   return (
-    // <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.flex}
-    >
-      <ScrollView
-        contentContainerStyle={[styles.scroll, contentContainerStyle]}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.flex}
       >
-        <View style={[styles.inner, style]}>{children}</View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-    // </SafeAreaView>
+        <ScrollView
+          contentContainerStyle={[styles.scroll, contentContainerStyle]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={[styles.inner, style]}>{children}</View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

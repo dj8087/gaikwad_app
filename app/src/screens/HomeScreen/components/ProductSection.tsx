@@ -7,7 +7,7 @@ import {
     FlatList,
     StyleSheet,
     View,
-    ActivityIndicator
+    ActivityIndicator,
 } from "react-native";
 import ProductCard from "./ProductCard";
 
@@ -29,8 +29,13 @@ interface Props {
     onSeeAll?: () => void;
     onProductPress?: (item: Product) => void;
     onEndReached?: () => void;
+    onMomentumScrollBegin?: () => void;
     loading?: boolean;
-    ListEmptyComponent?: React.ComponentType<any> | React.ReactElement | null | undefined;
+    ListEmptyComponent?:
+    | React.ComponentType<any>
+    | React.ReactElement
+    | null
+    | undefined;
 }
 
 const { width } = Dimensions.get("screen");
@@ -42,15 +47,12 @@ export function ProductSection({
     onSeeAll,
     onProductPress,
     onEndReached,
+    onMomentumScrollBegin,
     loading,
     ListEmptyComponent,
 }: Props) {
-
     const renderItem = ({ item }: any) => (
-        <ProductCard
-            item={item}
-            onPress={() => onProductPress?.(item)}
-        />
+        <ProductCard item={item} onPress={() => onProductPress?.(item)} />
     );
 
     const renderFooter = () => {
@@ -59,22 +61,27 @@ export function ProductSection({
     };
 
     return (
-        <View style={{ flex:1, marginTop: 20 }}>
+        <View style={{ flex: 1, marginTop: 20 }}>
             {title && <SeeAllHeader title={title} onPress={onSeeAll} />}
+
             <FlatList
                 data={data}
                 renderItem={renderItem}
                 numColumns={2}
                 keyExtractor={(item) => item.id.toString()}
                 columnWrapperStyle={styles.columnWrapper}
-                contentContainerStyle={styles.container}
+                contentContainerStyle={[
+                    styles.container,
+                    data.length === 0 && { flexGrow: 1, justifyContent: "center" },
+                ]}
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
                 windowSize={5}
                 removeClippedSubviews
                 showsVerticalScrollIndicator={false}
                 onEndReached={onEndReached}
-                onEndReachedThreshold={0.5}
+                onMomentumScrollBegin={onMomentumScrollBegin}
+                onEndReachedThreshold={0.3}
                 ListFooterComponent={renderFooter}
                 ListEmptyComponent={ListEmptyComponent}
             />

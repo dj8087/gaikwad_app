@@ -6,13 +6,13 @@ import AppButton from '../components/AppButton';
 import Slider from '@react-native-community/slider';
 import useAppNavigation from '../hooks/useAppNavigation';
 import useAppDispatch from '../hooks/useAppDispatch';
-import {useAuthData} from '../hooks/useAuthData';
+import { useAuthData } from '../hooks/useAuthData';
 import { useSelector } from 'react-redux';
 import { fetchCategories } from '../api/categorySlice';
 import { RootState } from '../redux/store';
 // import useAuthData from '../hooks/useAuthData';
 
-const DropdownModal = ({ visible, items, onSelect, onClose }) => (
+const DropdownModal = ({ visible, items, onSelect, onClose }: { visible: boolean, items: any[], onSelect: (item: any) => void, onClose: () => void }) => (
     <Modal
         visible={visible}
         transparent={true}
@@ -72,7 +72,7 @@ const FilterScreen = () => {
         setSelectedSubCategory('All');
     }, [selectedCategory]);
 
-    const renderDropdown = (label, selectedValue, onPress) => (
+    const renderDropdown = (label: any, selectedValue: any, onPress: any) => (
         <View style={styles.filterSection}>
             <Text style={styles.label}>{label}</Text>
             <TouchableOpacity style={styles.dropdown} onPress={onPress}>
