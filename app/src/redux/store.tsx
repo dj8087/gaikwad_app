@@ -8,6 +8,7 @@ import productDesignReducer from "../api/productDesignSlice";
 import productInquiryReducer from "../api/productInquirySlice";
 import profileReducer from "../api/profileSlice";
 import vistorsReducer from "../api/visitorsSlice";
+import bannerReducer from "../api/bannerSlice";
 
 import {
     FLUSH,
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
     imageSelectorReducer: imageSelectorSlice,
     productInquiryReducer: productInquiryReducer,
     category: categoryReducer,
+    banner: bannerReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

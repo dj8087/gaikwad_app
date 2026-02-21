@@ -13,14 +13,9 @@ export default function SplashScreen() {
   const navigation = useAppNavigation()
   const dispatch = useAppDispatch()
   const { token, user } = useAuthData();
-
-  console.log("token -- " + token)
-  console.log("user -- " + JSON.stringify(user))
-
   useEffect(() => {
     const timer = setTimeout(() => {
       if (token && user?.id) {
-        console.log("////")
         dispatch(getLoggedInUser(token))
           .unwrap()
           .then(res => {
@@ -28,13 +23,10 @@ export default function SplashScreen() {
           })
           .catch(err => {
             showError("Invalid access token")
-            navigation.navigate("Splash1");
-            // navigation.navigate("AccessTokenScreen");
+            navigation.navigate("AccessTokenScreen");
           });
       } else {
-        console.log("????")
-        // navigation.replace("AccessTokenScreen");
-        navigation.replace("Splash1");
+        navigation.replace("AccessTokenScreen");
       }
     }, 2000);
     return () => clearTimeout(timer);

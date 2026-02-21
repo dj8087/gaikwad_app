@@ -46,10 +46,9 @@ export const verifyTokenApi = createAsyncThunk<
 
       return data;
     } catch (error: any) {
-      console.log(error)
       return rejectWithValue(
-          error?.message ||
-          "Network error"
+        error?.message ||
+        "Network error"
       );
     }
   }

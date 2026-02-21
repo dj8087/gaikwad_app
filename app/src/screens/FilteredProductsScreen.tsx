@@ -5,7 +5,7 @@ import ScreenWrapper from "../components/ScreenWrapper";
 import AppHeader from "../components/AppHeader";
 import { ProductSection } from "../screens/HomeScreen/components/ProductSection";
 import useAppDispatch from '../hooks/useAppDispatch';
-import { fetchDesignList } from "../api/designSlice";
+import { fetchDesignList, fetchFilteredDesigns } from "../api/designSlice";
 import { useAuthData } from "../hooks/useAuthData";
 import NoData from "../components/NoDataFound";
 import AppLoader from "../components/AppLoader";
@@ -29,14 +29,14 @@ const FilteredProductsScreen = () => {
   const onEndReachedCalledDuringMomentum = useRef(true);
 
   const [page, setPage] = useState(0);
-  const [designs, setDesigns] = useState([]);
+  const [filteredDesigns, setFilteredDesigns] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     setPage(0);
-    setDesigns([]);
+    setFilteredDesigns([]);
     loadDesigns(0);
   }, []);
 
@@ -51,7 +51,7 @@ const FilteredProductsScreen = () => {
       setInitialLoading(true);
     }
     dispatch(
-      fetchDesignList({
+      fetchFilteredDesigns({
         token,
         page: newPage,
         size: 10,
@@ -63,7 +63,7 @@ const FilteredProductsScreen = () => {
     )
       .unwrap()
       .then((res) => {
-        setDesigns(prev => newPage === 0 ? res.designs : [...prev, ...res.designs]);
+        setFilteredDesigns(prev => newPage === 0 ? res.designs : [...prev, ...res.designs]);
         setPage(res.currentPage);
         setTotalPages(res.totalPages);
       })
@@ -92,7 +92,7 @@ const FilteredProductsScreen = () => {
       <AppHeader title="Filtered Products" onBackPress={() => navigation.goBack()} />
       <View style={{ flex: 1, paddingHorizontal: 15 }}>
         <ProductSection
-          data={designs}
+          data={filteredDesigns}
           loading={loading}
           ListEmptyComponent={<NoData />}
           onProductPress={onProductClick}

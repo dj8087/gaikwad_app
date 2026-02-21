@@ -53,16 +53,7 @@ export default function RegistrationScreen() {
 
     const handleSubmit = () => {
         if (!validate()) return;
-
-        console.log({
-            mobile,
-            name,
-            shop,
-            city,
-        });
-
         navigation.navigate("Dashbaord")
-
     };
 
     return (

@@ -1,49 +1,101 @@
-import assets from "@/app/src/assets";
+import React from "react";
+import {
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    View,
+    TouchableOpacity,
+} from "react-native";
 import SeeAllHeader from "@/app/src/components/SeeAllHeader";
 import { fonts } from "@/app/src/theme/fonts";
-import React from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import colors from "@/app/src/theme/colors";
+import { useAuthData } from "@/app/src/hooks/useAuthData";
+import { getBaseUrl } from "@/app/src/utils/common";
 
-const data = [
-    { title: "Rings", image: assets.images.ring },
-    { title: "Necklace", image: assets.images.ring },
-    { title: "Bracelets", image: assets.images.ring },
-    { title: "Earrings", image: assets.images.ring },
-    { title: "Nose rings", image: assets.images.ring },
-    { title: "Necklace ", image: assets.images.ring },
-    { title: "Bracelets ", image: assets.images.ring },
-    { title: "Earrings ", image: assets.images.ring },
-];
+interface Category {
+    id: number;
+    name: string;
+    nameMr: string;
+    iconSelector: string;
+}
 
-export default function CategoryList() {
+interface Props {
+    categories: Category[];
+    onCategoryPress?: (item: Category) => void;
+}
+
+export default function CategoryList({
+    categories,
+    onCategoryPress,
+}: Props) {
+    const { token } = useAuthData()
+
+    const renderItem = ({ item }: { item: Category }) => {
+        const getImageUrl = getBaseUrl() + 'images/iconSelectors/' + item.iconSelector
+        return (
+            <TouchableOpacity
+                style={styles.itemContainer}
+                activeOpacity={0.7}
+                onPress={() => onCategoryPress?.(item)}
+            >
+                <View style={styles.imageWrapper}>
+                    <Image
+                        source={{
+                            uri: getImageUrl,
+                            headers: { token },
+                        }}
+                        style={styles.image}
+                        resizeMode="cover"
+                    />
+                </View>
+
+                <Text style={styles.title} numberOfLines={1}>
+                    {item.name}
+                </Text>
+            </TouchableOpacity>
+        );
+    };
+
     return (
-        <View>
+        <View style={{ marginTop: 10 }}>
             <SeeAllHeader title="Category" onPress={() => { }} />
+
             <FlatList
                 horizontal
-                data={data}
+                data={categories}
                 showsHorizontalScrollIndicator={false}
-                renderItem={({ item }) => (
-                    <View style={{ alignItems: 'center', marginHorizontal: 15, marginTop:20 }}>
-                        <Image source={item.image} style={{ width: 40, height: 40 }} />
-                        <Text style={{ fontFamily: fonts.regular, textAlign: "center" }}>{item.title}</Text>
-                    </View>
-                )}
-                keyExtractor={(item) => item.title}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id.toString()}
+                contentContainerStyle={{ paddingHorizontal: 10 }}
             />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    row: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 12,
-        paddingHorizontal: 18,
+    itemContainer: {
+        alignItems: "center",
+        marginHorizontal: 12,
+    },
+    imageWrapper: {
+        width: 80,
+        height: 80,
+        borderRadius: 60,
+        backgroundColor: colors.primary,
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 6,
+    },
+    image: {
+        width: 80,
+        height: 80,
+        borderRadius: 40
     },
     title: {
-        fontFamily: fonts.bold,
-        fontSize: 18,
+        fontFamily: fonts.medium,
+        fontSize: 12,
+        textAlign: "center",
+        maxWidth: 70,
     },
 });

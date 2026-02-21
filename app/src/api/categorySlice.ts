@@ -36,7 +36,6 @@ export const fetchCategories = createAsyncThunk(
   async ({ token }: { token: string }, { rejectWithValue }) => {
     try {
       const url = "/categories";
-      console.log("Fetching categories from:", api.defaults.baseURL + url);
       const res = await api.get(url, {
         headers: { token },
       });
