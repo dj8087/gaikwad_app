@@ -2,20 +2,20 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
-  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   StyleSheet,
   View,
   ViewStyle,
 } from "react-native";
+import AppImage from "./AppImage";
 
 const { width } = Dimensions.get("screen");
 
 interface CarouselItem {
   id: string | number;
-  image?: any;      
-  url?: string; 
+  image?: any;
+  url?: string;
 }
 
 interface Props {
@@ -59,6 +59,8 @@ export default function Carousel({
     setActiveIndex(index);
   };
 
+  const carouselHeight = style?.height || 200;
+
   return (
     <View style={[styles.container, style]}>
       <FlatList
@@ -70,16 +72,16 @@ export default function Carousel({
         onScroll={onScroll}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => {
-          const source = item.url
-            ? { uri: item.url }
-            : item.image;
-
-          return (
-            <Image
-              source={source}
-              style={styles.image}
-            />
-          );
+          if (item.url) {
+            return (
+              <AppImage
+                uri={item.url}
+                containerStyle={styles.image}
+                height={carouselHeight}
+              />
+            );
+          }
+          return null;
         }}
       />
 

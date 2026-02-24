@@ -11,7 +11,7 @@ export default function Header() {
     <View style={styles.container}>
       <View>
         <Text style={styles.welcome}>Welcome 👋</Text>
-        <Text style={styles.name}>{user.name}</Text>
+        <Text style={styles.name}>{user?.name}</Text>
       </View>
 
       {/* <View style={styles.icons}>

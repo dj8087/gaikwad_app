@@ -25,6 +25,7 @@ interface InquiryPayload {
   siteProductDesignId: number;
   productCode: string;
   token: string;
+  inquiryMsg?: string;
 }
 
 export const createProductInquiry = createAsyncThunk(

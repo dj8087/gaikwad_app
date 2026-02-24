@@ -31,7 +31,7 @@ export default function Index() {
   const bootstrapApp = async () => {
     console.log("Starting app bootstrap...");
     try {
-      let baseUrl = 'http://192.168.1.24:3880' //await AsyncStorage.getItem(STORAGE_KEYS.APP_CONFIG);
+      let baseUrl = await AsyncStorage.getItem(STORAGE_KEYS.APP_CONFIG);
       console.log("Attempting to get base URL from AsyncStorage...");
 
       if (!baseUrl) {
