@@ -7,7 +7,7 @@ import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 
-import { fetchAndStoreBaseUrl } from "./appConfig";
+import { CONFIG_URL } from "./appConfig";
 import { setBaseUrl } from "./src/api";
 import RootNavigator from "./src/navigation/RootNavigator";
 import { persistor, store } from "./src/redux/store";
@@ -31,20 +31,56 @@ export default function Index() {
   const bootstrapApp = async () => {
     console.log("Starting app bootstrap...");
     try {
-      let baseUrl = await AsyncStorage.getItem(STORAGE_KEYS.APP_CONFIG);
+      const storedConfig = await AsyncStorage.getItem(STORAGE_KEYS.APP_CONFIG);
+      let baseUrl = null;
+      const today = new Date().toISOString().split('T')[0];
+
       console.log("Attempting to get base URL from AsyncStorage...");
 
-      if (!baseUrl) {
-        console.log("Base URL not found in AsyncStorage, fetching from remote...");
-        baseUrl = await fetchAndStoreBaseUrl();
-        console.log("Base URL fetched and stored successfully.");
-      } else {
-        console.log("Base URL found in AsyncStorage:", baseUrl);
+      if (storedConfig) {
+        try {
+          const { baseUrl: storedBaseUrl, date: storedDate } = JSON.parse(storedConfig);
+          if (storedDate === today) {
+            baseUrl = storedBaseUrl;
+            console.log("Base URL found in AsyncStorage for today:", baseUrl);
+          } else {
+            console.log("Stored Base URL is outdated.");
+          }
+        } catch (e) {
+          console.log('Could not parse stored config or it is outdated, will refetch.');
+        }
       }
 
-      const apiUrl = `${baseUrl}/v1/ajgold/site/api/`;
-      setBaseUrl(apiUrl);
-      console.log("Base URL set for API:", apiUrl);
+      if (!baseUrl) {
+        console.log("Base URL not found for today, fetching from remote...");
+        
+        const response = await fetch(CONFIG_URL);
+
+        if (!response.ok) {
+          throw new Error("Config API failed");
+        }
+      
+        const json = await response.json();
+        const fetchedBaseUrl = json?.appEndpointBaseUrl;
+      
+        if (!fetchedBaseUrl) {
+          throw new Error("appEndpointBaseUrl missing in config");
+        }
+        
+        const newConfig = { baseUrl: fetchedBaseUrl, date: today };
+        await AsyncStorage.setItem(STORAGE_KEYS.APP_CONFIG, JSON.stringify(newConfig));
+        baseUrl = fetchedBaseUrl;
+        
+        console.log("Base URL fetched and stored successfully for today.");
+      }
+
+      if (baseUrl) {
+        const apiUrl = `${baseUrl}/v1/ajgold/site/api/`;
+        setBaseUrl(apiUrl);
+        console.log("Base URL set for API:", apiUrl);
+      } else {
+        console.error("Could not obtain a valid base URL.");
+      }
 
     } catch (error) {
       console.error("App bootstrap failed", error);

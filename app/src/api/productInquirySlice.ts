@@ -3,12 +3,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosClient from ".";
 
-interface InquiryPayload {
-  siteVisitorId: number;
-  siteProductDesignId: number;
-  productCode: string;
-}
-
 interface InquiryState {
   loading: boolean;
   success: boolean;
@@ -21,11 +15,10 @@ const initialState: InquiryState = {
   error: null,
 };
 interface InquiryPayload {
-  siteVisitorId: number;
   siteProductDesignId: number;
-  productCode: string;
   token: string;
   inquiryMsg?: string;
+  imageId: any;
 }
 
 export const createProductInquiry = createAsyncThunk(
@@ -39,11 +32,11 @@ export const createProductInquiry = createAsyncThunk(
         body,
         {
           headers: {
-            token: token, 
+            token: token,
           },
         }
       );
-
+      
       return res.data;
     } catch (error: any) {
       return rejectWithValue(

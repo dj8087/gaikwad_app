@@ -2,7 +2,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "./src/utils/storageKeys";
 
-const CONFIG_URL = "https://ajgold.in/configs/app/config.json";
+export const CONFIG_URL = "https://ajgold.in/configs/app/config.json";
 
 export const fetchAndStoreBaseUrl = async (): Promise<string> => {
   console.log("Fetching app configuration from:", CONFIG_URL);

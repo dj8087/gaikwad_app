@@ -23,13 +23,12 @@ import {
 const { width, height } = Dimensions.get("window");
 
 interface DesignData {
-  id: any;
   siteProductDesignId: any;
   stock: boolean;
-  sampleBarcode: any;
   weight: number;
   carat: number;
   wax: boolean;
+  id: number;
 }
 
 interface Props {
@@ -59,11 +58,10 @@ export default function DesignSlide({
   const handleSendEnquiry = () => {
     dispatch(
       createProductInquiry({
-        siteVisitorId: data?.id,
         siteProductDesignId: data?.siteProductDesignId,
-        productCode: data?.sampleBarcode ?? "null",
         token: token,
         inquiryMsg: inquiryMsg,
+        imageId: data?.id,
       })
     )
       .unwrap()
@@ -105,9 +103,8 @@ export default function DesignSlide({
 
       {/* DETAILS */}
       <View style={styles.detailsCard}>
-        <Text style={styles.selector}>
-          {productName} {selector}
-        </Text>
+        <Text style={styles.selector}>{productName}</Text>
+        <Text style={styles.subtitle}>{selector}</Text>
 
         <View style={styles.row}>
           <Text style={styles.label}>Weight</Text>
@@ -231,8 +228,12 @@ const styles = StyleSheet.create({
   selector: {
     fontSize: 20,
     fontWeight: "600",
-    marginBottom: 12,
     color: colors.text,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#888",
+    marginBottom: 12,
   },
   row: {
     flexDirection: "row",
