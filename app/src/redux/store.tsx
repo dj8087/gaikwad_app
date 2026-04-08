@@ -9,6 +9,7 @@ import productInquiryReducer from "../api/productInquirySlice";
 import profileReducer from "../api/profileSlice";
 import vistorsReducer from "../api/visitorsSlice";
 import bannerReducer from "../api/bannerSlice";
+import versionReducer from "../api/versionSlice";
 
 import {
     FLUSH,
@@ -40,6 +41,7 @@ const rootReducer = combineReducers({
     productInquiryReducer: productInquiryReducer,
     category: categoryReducer,
     banner: bannerReducer,
+    version: versionReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -55,7 +57,6 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
-
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 

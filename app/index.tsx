@@ -1,3 +1,4 @@
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts } from "expo-font";
 import React, { useEffect, useState } from "react";
@@ -13,6 +14,47 @@ import RootNavigator from "./src/navigation/RootNavigator";
 import { persistor, store } from "./src/redux/store";
 import { STORAGE_KEYS } from "./src/utils/storageKeys";
 import { toastConfig } from "./src/utils/toastConfig";
+import { useVersionCheck } from "./src/hooks/useVersionCheck";
+import UpdateModal from "./src/components/UpdateModal";
+
+const AppRoot = () => {
+  const {
+    showUpdateModal,
+    isUpdateRequired,
+    versionData,
+    handleUpdate,
+    handleLater,
+  } = useVersionCheck();
+
+  if (isUpdateRequired && versionData) {
+    return (
+      <UpdateModal
+        visible={showUpdateModal}
+        isForceUpdate={versionData.isForceUpdate}
+        releaseNote={versionData.releaseNote}
+        onUpdate={handleUpdate}
+        onLater={handleLater}
+      />
+    );
+  }
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <RootNavigator />
+      <Toast position="bottom" config={toastConfig} />
+      {versionData && (
+        <UpdateModal
+          visible={showUpdateModal}
+          isForceUpdate={versionData.isForceUpdate}
+          releaseNote={versionData.releaseNote}
+          onUpdate={handleUpdate}
+          onLater={handleLater}
+        />
+      )}
+    </GestureHandlerRootView>
+  );
+}
+
 
 export default function Index() {
   const [appReady, setAppReady] = useState(false);
@@ -106,13 +148,10 @@ export default function Index() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <RootNavigator />
-          <Toast position="bottom" config={toastConfig} />
-        </PersistGate>
-      </Provider>
-    </GestureHandlerRootView>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <AppRoot />
+      </PersistGate>
+    </Provider>
   );
 }
