@@ -90,6 +90,7 @@ export const fetchFilteredDesigns = createAsyncThunk(
       subCategory,
       weightRangeStart,
       weightRangeEnd,
+      searchQuery
     }: {
       token: string;
       page?: number;
@@ -98,6 +99,7 @@ export const fetchFilteredDesigns = createAsyncThunk(
       subCategory?: number;
       weightRangeStart?: number;
       weightRangeEnd?: number;
+      searchQuery?: string;
     },
     { rejectWithValue }
   ) => {
@@ -108,6 +110,7 @@ export const fetchFilteredDesigns = createAsyncThunk(
       if (subCategory) url += `&subCategory=${subCategory}`;
       if (weightRangeStart) url += `&weightRangeStart=${weightRangeStart}`;
       if (weightRangeEnd) url += `&weightRangeEnd=${weightRangeEnd}`;
+      if (searchQuery) url += `&searchQuery=${encodeURIComponent(searchQuery)}`;
 
       const res = await api.get(url, {
         headers: { token },

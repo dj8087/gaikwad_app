@@ -1,14 +1,18 @@
 import { RootState } from "@/app/src/redux/store";
 import { fonts } from "@/app/src/theme/fonts";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StatusBar, StyleSheet, Text, View } from "react-native";
 import { useSelector } from "react-redux";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Header() {
   const { data } = useSelector((state: RootState) => state.profile);
   const user = data?.data;
+  const insets = useSafeAreaInsets();
+  const topMargin = Platform.OS === "android" ? StatusBar.currentHeight || insets.top : insets.top;
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { marginTop: topMargin }]}>
       <View>
         <Text style={styles.welcome}>Welcome 👋</Text>
         <Text style={styles.name}>{user?.name}</Text>

@@ -15,6 +15,7 @@ interface Props {
   containerStyle?: ViewStyle;
   titleStyle?: TextStyle;
   linkStyle?: TextStyle;
+  showSeeAll?: boolean;
 }
 
 export default function SeeAllHeader({
@@ -23,14 +24,17 @@ export default function SeeAllHeader({
   containerStyle,
   titleStyle,
   linkStyle,
+  showSeeAll = true,
 }: Props) {
   return (
     <View style={[styles.row, containerStyle]}>
       <Text style={[styles.title, titleStyle]}>{title}</Text>
 
-      <TouchableOpacity onPress={onPress}>
-        <Text style={[styles.link, linkStyle]}>See All</Text>
-      </TouchableOpacity>
+      {showSeeAll && (
+        <TouchableOpacity onPress={onPress}>
+          <Text style={[styles.link, linkStyle]}>See All</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

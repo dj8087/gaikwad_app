@@ -28,7 +28,7 @@ export const useVersionCheck = () => {
     console.log("Current app version:", appVersion.currentVersion);
     const checkVersion = async () => {
       console.log("useVersionCheck: Checking for app updates...");
-      const lastCheckDate = await AsyncStorage.getItem(STORAGE_KEYS.LAST_VERSION_CHECK_DATE);
+      const lastCheckDate = null;//await AsyncStorage.getItem(STORAGE_KEYS.LAST_VERSION_CHECK_DATE);
       console.log("Last version check date:", lastCheckDate);
       const today = new Date().toISOString().split('T')[0];
 

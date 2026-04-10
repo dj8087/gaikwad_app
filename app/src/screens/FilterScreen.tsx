@@ -88,6 +88,7 @@ const FilterScreen = () => {
             subCategory: selectedSubCategory === 'All' ? undefined : selectedSubCategory.id,
             weightRangeStart: minWeight,
             weightRangeEnd: maxWeight,
+            searchQuery: searchText ? searchText : undefined,
         });
     };
 

@@ -11,6 +11,8 @@ import { RootState } from "../redux/store";
 import colors from "../theme/colors";
 import { showSuccess } from "../utils/toast";
 
+const appVersion = require('../../../assets/config/app.version.json');
+
 interface InfoRowProps {
   icon: string;
   label: string;
@@ -53,6 +55,8 @@ export default function ProfileScreen() {
                     }}
                     title="Logout"
                 />
+
+                <Text style={styles.versionText}>Version {appVersion.currentVersion}</Text>
             </View>
         </>
     );
@@ -128,5 +132,12 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: "600",
         color: "#333",
+    },
+
+    versionText: {
+        textAlign: "center",
+        marginTop: 20,
+        fontSize: 12,
+        color: "#999",
     },
 });

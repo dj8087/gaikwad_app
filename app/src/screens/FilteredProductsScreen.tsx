@@ -24,6 +24,7 @@ const FilteredProductsScreen = () => {
     subCategory = null,
     weightRangeStart = null,
     weightRangeEnd = null,
+    searchQuery = null,
   } = params;
 
   const onEndReachedCalledDuringMomentum = useRef(true);
@@ -59,6 +60,7 @@ const FilteredProductsScreen = () => {
         subCategory,
         weightRangeStart,
         weightRangeEnd,
+        searchQuery: searchQuery || undefined,
       })
     )
       .unwrap()

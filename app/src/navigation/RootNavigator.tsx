@@ -7,6 +7,8 @@ import SplashScreen from '../screens/SplashScreen';
 import SplashScreen1 from '../screens/SplashScreen1';
 import Dashbaord from './TabsNavigator';
 import FilteredProductsScreen from '../screens/FilteredProductsScreen';
+import CategoryProductsScreen from '../screens/CategoryProductsScreen';
+import FilterScreen from '../screens/FilterScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +20,8 @@ export type RootStackParamList = {
   Dashbaord: undefined;
   ProductDetail: {};
   FilteredProducts: {};
+  CategoryProductsScreen: {};
+  ProductFilter: {};
 };
 
 
@@ -31,6 +35,8 @@ export default function RootNavigator() {
       <Stack.Screen name="RegistrationScreen" component={RegistrationScreen} />
       <Stack.Screen name="ProductDetail" component={ProductDetailsScreen} />
       <Stack.Screen name="FilteredProducts" component={FilteredProductsScreen} />
+      <Stack.Screen name="CategoryProductsScreen" component={CategoryProductsScreen} />
+      <Stack.Screen name="ProductFilter" component={FilterScreen} />
     </Stack.Navigator>
   );
 }

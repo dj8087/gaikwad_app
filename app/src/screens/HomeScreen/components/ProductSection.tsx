@@ -1,4 +1,6 @@
 import SeeAllHeader from "@/app/src/components/SeeAllHeader";
+import AppButton from "@/app/src/components/AppButton";
+import useAppNavigation from "@/app/src/hooks/useAppNavigation";
 import colors from "@/app/src/theme/colors";
 import { fonts } from "@/app/src/theme/fonts";
 import React from "react";
@@ -36,6 +38,7 @@ interface Props {
     | React.ReactElement
     | null
     | undefined;
+    showFilterButton?: boolean;
 }
 
 const { width } = Dimensions.get("screen");
@@ -50,14 +53,26 @@ export function ProductSection({
     onMomentumScrollBegin,
     loading,
     ListEmptyComponent,
+    showFilterButton = false,
 }: Props) {
+    const navigation = useAppNavigation();
+
     const renderItem = ({ item }: any) => (
         <ProductCard item={item} onPress={() => onProductPress?.(item)} />
     );
 
     const renderFooter = () => {
-        if (!loading) return null;
-        return <ActivityIndicator style={{ marginVertical: 20 }} />;
+        return (
+            <View style={styles.footerContainer}>
+                {loading && <ActivityIndicator style={{ marginVertical: 20 }} />}
+                {showFilterButton && (
+                    <AppButton
+                        title="Filter More Products"
+                        onPress={() => navigation.navigate("Filter" as never)}
+                    />
+                )}
+            </View>
+        );
     };
 
     return (
@@ -145,5 +160,8 @@ const styles = StyleSheet.create({
     price: {
         fontFamily: fonts.semi,
         marginTop: 6,
+    },
+    footerContainer: {
+        paddingBottom: 20,
     },
 });

@@ -20,23 +20,10 @@ import UpdateModal from "./src/components/UpdateModal";
 const AppRoot = () => {
   const {
     showUpdateModal,
-    isUpdateRequired,
     versionData,
     handleUpdate,
     handleLater,
   } = useVersionCheck();
-
-  if (isUpdateRequired && versionData) {
-    return (
-      <UpdateModal
-        visible={showUpdateModal}
-        isForceUpdate={versionData.isForceUpdate}
-        releaseNote={versionData.releaseNote}
-        onUpdate={handleUpdate}
-        onLater={handleLater}
-      />
-    );
-  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

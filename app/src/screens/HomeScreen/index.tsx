@@ -44,7 +44,7 @@ export default function HomeScreen() {
   useEffect(() => {
     if (!token) return;
 
-    dispatch(fetchDesignList({ token, size: 4, page: 0 }));
+    dispatch(fetchDesignList({ token, size: 10, page: 0 }));
     dispatch(fetchCategories({ token }));
     dispatch(fetchBanners({ token }));
   }, [token, dispatch]);
@@ -64,6 +64,13 @@ export default function HomeScreen() {
         });
     },
     [dispatch, navigation, token]
+  );
+
+  const handleCategoryPress = useCallback(
+    (category: any) => {
+      navigation.navigate("CategoryProductsScreen", { category: category.id });
+    },
+    [navigation]
   );
 
   // -------------------- LOADING STATE --------------------
@@ -88,14 +95,26 @@ export default function HomeScreen() {
 
       {!designLoading && (
         <>
-          <CategoryList categories={categories} />
+          <CategoryList 
+            categories={categories} 
+            onCategoryPress={handleCategoryPress} 
+          />
 
           {!error && (
             <ProductSection
               title="Latest Designs:"
               data={designs}
-              onSeeAll={() => console.log("SEE ALL DESIGNS")}
+              onSeeAll={() => 
+                navigation.navigate("FilteredProducts", {
+                  category: undefined,
+                  subCategory: undefined,
+                  weightRangeStart: undefined,
+                  weightRangeEnd: undefined,
+                  searchQuery: undefined,
+                })
+              }
               onProductPress={onProductClick}
+              showFilterButton={true}
             />
           )}
         </>
