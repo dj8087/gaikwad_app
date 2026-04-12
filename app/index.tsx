@@ -2,7 +2,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import messaging from "@react-native-firebase/messaging";
 import { useFonts } from "expo-font";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
@@ -18,6 +18,9 @@ import { toastConfig } from "./src/utils/toastConfig";
 import { useVersionCheck } from "./src/hooks/useVersionCheck";
 import UpdateModal from "./src/components/UpdateModal";
 import { navigate } from "./src/navigation/navigationRef";
+import { useAuthData } from "./src/hooks/useAuthData";
+import useAppDispatch from "./src/hooks/useAppDispatch";
+import { updateFcmTokenApi } from "./src/api/authSlice";
 
 // Register background handler (must be outside of React components)
 messaging().setBackgroundMessageHandler(async remoteMessage => {
@@ -32,6 +35,14 @@ const AppRoot = () => {
     handleLater,
   } = useVersionCheck();
 
+  const { token: authToken } = useAuthData();
+  const dispatch = useAppDispatch();
+
+  const authTokenRef = useRef(authToken);
+  useEffect(() => {
+    authTokenRef.current = authToken;
+  }, [authToken]);
+
   useEffect(() => {
     const requestPermissionAndSetup = async () => {
       const authStatus = await messaging().requestPermission();
@@ -43,11 +54,30 @@ const AppRoot = () => {
         console.log("FCM Authorization status:", authStatus);
         const token = await messaging().getToken();
         console.log("FCM Token:", token);
-        // Optionally send this token to your backend server
+        const storedToken = await AsyncStorage.getItem("fcmToken");
+        //log authTokenRef
+        console.log("Current auth token:", authTokenRef.current);
+        if (token !== storedToken) {
+          await AsyncStorage.setItem("fcmToken", token);
+          if (authTokenRef.current) {
+            dispatch(updateFcmTokenApi({ token: authTokenRef.current, fcmToken: token }));
+          }
+        }
       }
     };
 
     requestPermissionAndSetup();
+
+    // Handle token refresh
+    const unsubscribeTokenRefresh = messaging().onTokenRefresh(async (token) => {
+      const storedToken = await AsyncStorage.getItem("fcmToken");
+      if (token !== storedToken) {
+        await AsyncStorage.setItem("fcmToken", token);
+        if (authTokenRef.current) {
+          dispatch(updateFcmTokenApi({ token: authTokenRef.current, fcmToken: token }));
+        }
+      }
+    });
 
     // Handle foreground notifications
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
@@ -71,7 +101,10 @@ const AppRoot = () => {
       }
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      unsubscribeTokenRefresh();
+    };
   }, []);
 
   return (

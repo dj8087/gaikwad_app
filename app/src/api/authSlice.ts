@@ -1,4 +1,5 @@
 // src/redux/slices/authSlice.ts
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosClient from ".";
 
@@ -35,9 +36,10 @@ export const verifyTokenApi = createAsyncThunk<
   "auth/verifyToken",
   async (accessToken, { rejectWithValue }) => {
     try {
+      const fcmToken = await AsyncStorage.getItem("fcmToken");
       const { data } = await axiosClient.post<VerifyTokenResponse>(
         "/users/authenticateAccessToken",
-        { accessToken }
+        { accessToken, fcmToken }
       );
 
       if (data?.error_status) {
@@ -50,6 +52,26 @@ export const verifyTokenApi = createAsyncThunk<
         error?.message ||
         "Network error"
       );
+    }
+  }
+);
+
+export const updateFcmTokenApi = createAsyncThunk<
+  any,
+  { token: string; fcmToken: string },
+  { rejectValue: string }
+>(
+  "auth/updateFcmToken",
+  async ({ token, fcmToken }, { rejectWithValue }) => {
+    try {
+      const { data } = await axiosClient.post(
+        "/appUser/fcmToken",
+        { fcmToken },
+        { headers: { token } }
+      );
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(error?.message || "Network error");
     }
   }
 );
