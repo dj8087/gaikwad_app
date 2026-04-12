@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Dimensions, StyleSheet } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -10,11 +10,13 @@ import Animated, {
 const { width, height } = Dimensions.get("window");
 
 interface Props {
-  uri: string;
+  uri?: string;
+  midUri?: string;
   token?: string;
 }
 
-export default function PinchPanZoomImage({ uri, token }: Props) {
+export default function PinchPanZoomImage({ uri, midUri, token }: Props) {
+  const [loading, setLoading] = useState(true);
   const scale = useSharedValue(1);
   const savedScale = useSharedValue(1);
 
@@ -73,19 +75,35 @@ export default function PinchPanZoomImage({ uri, token }: Props) {
 
   return (
     <GestureDetector gesture={composedGesture}>
-      <Animated.Image
-        source={{ uri, headers: token ? { token } : undefined }}
-        resizeMode="contain"
-        style={[styles.image, animatedStyle]}
-      />
+      <Animated.View style={[styles.container, animatedStyle]}>
+        {midUri && loading && (
+          <Animated.Image
+            source={{ uri: midUri, headers: token ? { token } : undefined }}
+            resizeMode="contain"
+            style={[styles.image, { position: "absolute" }]}
+          />
+        )}
+        {uri && (
+          <Animated.Image
+            source={{ uri, headers: token ? { token } : undefined }}
+            resizeMode="contain"
+            style={styles.image}
+            onLoadEnd={() => setLoading(false)}
+          />
+        )}
+      </Animated.View>
     </GestureDetector>
   );
 }
 
 const styles = StyleSheet.create({
-  image: {
+  container: {
     width,
     height,
     backgroundColor: "black",
+  },
+  image: {
+    width,
+    height,
   },
 });

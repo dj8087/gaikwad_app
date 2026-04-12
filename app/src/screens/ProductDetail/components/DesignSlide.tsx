@@ -42,8 +42,8 @@ export default function DesignSlide({
   data,
   productName,
 }: Props) {
-  const { loading } = useImageSelector(selector);
   const { token } = useAuthData();
+  // const { loading } = useImageSelector(selector, token);
   const dispatch = useAppDispatch();
 
   const [enquiryModalVisible, setEnquiryModalVisible] = useState(false);
@@ -51,11 +51,13 @@ export default function DesignSlide({
   const [enquirySent, setEnquirySent] = useState(false);
   const [inquiryMsg, setInquiryMsg] = useState("");
 
+  const thumbUrl = getBaseUrl() + `images/imageSelectors/${selector}.jpg/THUMB`;
   const imageUrl = getBaseUrl() + `images/imageSelectors/${selector}.jpg/MID`;
   const openimageUrl =
     getBaseUrl() + `images/imageSelectors/${selector}.jpg/FULL`;
 
   const handleSendEnquiry = () => {
+    //log
     dispatch(
       createProductInquiry({
         siteProductDesignId: data?.siteProductDesignId,
@@ -83,6 +85,7 @@ export default function DesignSlide({
         <View style={styles.imageContainer}>
           <AppImage
             uri={imageUrl}
+            thumbUri={thumbUrl}
             openImageUri={openimageUrl}
             isOpenImage={true}
             height={height * 0.5}
@@ -190,7 +193,7 @@ export default function DesignSlide({
         />
       )}
 
-      <AppLoader visible={loading} />
+      {/* <AppLoader visible={loading} /> */}
     </View>
   );
 }

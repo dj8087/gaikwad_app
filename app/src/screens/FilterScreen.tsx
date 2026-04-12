@@ -86,8 +86,8 @@ const FilterScreen = () => {
         navigation.navigate('FilteredProducts', {
             category: selectedCategory === 'All' ? undefined : selectedCategory.id,
             subCategory: selectedSubCategory === 'All' ? undefined : selectedSubCategory.id,
-            weightRangeStart: minWeight,
-            weightRangeEnd: maxWeight,
+                weightRangeStart: Math.min(minWeight, maxWeight - 1),
+                weightRangeEnd: Math.max(maxWeight, minWeight + 1),
             searchQuery: searchText ? searchText : undefined,
         });
     };
@@ -141,9 +141,10 @@ const FilterScreen = () => {
                             step={1}
                             value={minWeight}
                             onValueChange={(value) => {
-                                if (value < maxWeight) {
-                                    setMinWeight(value);
-                                }
+                                setMinWeight(value);
+                            }}
+                            onSlidingComplete={(value) => {
+                                setMinWeight(Math.min(value, maxWeight - 1));
                             }}
                         />
                     </View>
@@ -156,9 +157,10 @@ const FilterScreen = () => {
                             step={1}
                             value={maxWeight}
                             onValueChange={(value) => {
-                                if (value > minWeight) {
-                                    setMaxWeight(value);
-                                }
+                                setMaxWeight(value);
+                            }}
+                            onSlidingComplete={(value) => {
+                                setMaxWeight(Math.max(value, minWeight + 1));
                             }}
                         />
                     </View>

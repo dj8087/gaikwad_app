@@ -18,6 +18,7 @@ import PinchPanZoomImage from "./ZoomableImage";
 
 interface AppImageProps {
   uri?: string;
+  thumbUri?: string;
   openImageUri?: string;
   inStock?: boolean;
   height?: number;
@@ -30,6 +31,7 @@ const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function AppImage({
   uri,
+  thumbUri,
   openImageUri,
   inStock,
   height = SCREEN_HEIGHT * 0.5,
@@ -51,7 +53,7 @@ export default function AppImage({
       if (loading) {
         setLoading(false);
       }
-    }, 5000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [loading]);
@@ -78,6 +80,16 @@ export default function AppImage({
           style={{ width: "100%", height: "100%" }}
           onPress={() => setOpen(true)}
         >
+          {thumbUri && loading && (
+            <Image
+              source={{
+                uri: thumbUri,
+                headers: { token },
+              }}
+              style={[styles.image, { position: "absolute" }]}
+              resizeMode="cover"
+            />
+          )}
           <Image
             source={{
               uri,
@@ -117,7 +129,7 @@ export default function AppImage({
       <Modal visible={open} transparent animated animationType="fade">
         <View style={styles.modalContainer}>
           <GestureHandlerRootView style={styles.modalRoot}>
-            <PinchPanZoomImage uri={openImageUri} token={token} />
+            <PinchPanZoomImage uri={openImageUri} midUri={uri} token={token} />
           </GestureHandlerRootView>
 
           <TouchableOpacity
