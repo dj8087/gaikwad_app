@@ -1,5 +1,6 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import messaging from "@react-native-firebase/messaging";
 import { useFonts } from "expo-font";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -16,6 +17,12 @@ import { STORAGE_KEYS } from "./src/utils/storageKeys";
 import { toastConfig } from "./src/utils/toastConfig";
 import { useVersionCheck } from "./src/hooks/useVersionCheck";
 import UpdateModal from "./src/components/UpdateModal";
+import { navigate } from "./src/navigation/navigationRef";
+
+// Register background handler (must be outside of React components)
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('Message handled in the background!', remoteMessage);
+});
 
 const AppRoot = () => {
   const {
@@ -24,6 +31,48 @@ const AppRoot = () => {
     handleUpdate,
     handleLater,
   } = useVersionCheck();
+
+  useEffect(() => {
+    const requestPermissionAndSetup = async () => {
+      const authStatus = await messaging().requestPermission();
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+      if (enabled) {
+        console.log("FCM Authorization status:", authStatus);
+        const token = await messaging().getToken();
+        console.log("FCM Token:", token);
+        // Optionally send this token to your backend server
+      }
+    };
+
+    requestPermissionAndSetup();
+
+    // Handle foreground notifications
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      Toast.show({
+        type: "success",
+        text1: remoteMessage.notification?.title || "New Notification",
+        text2: remoteMessage.notification?.body || "",
+      });
+    });
+
+    // Handle notification click when app is in the background
+    messaging().onNotificationOpenedApp((remoteMessage) => {
+      navigate("Dashbaord");
+    });
+
+    // Handle notification click when app is completely closed (quit state)
+    messaging().getInitialNotification().then((remoteMessage) => {
+      if (remoteMessage) {
+        // Small delay to ensure NavigationContainer has mounted
+        setTimeout(() => navigate("Dashbaord"), 1500); 
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
