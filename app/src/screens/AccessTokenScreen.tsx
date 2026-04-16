@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
     ImageBackground,
     Keyboard,
+    Platform,
     StyleSheet,
     Text,
     TextInput,
@@ -20,6 +21,7 @@ import colors from "../theme/colors";
 import { fonts } from "../theme/fonts";
 import { showError } from "../utils/toast";
 import { useAndroidBackExit } from "../utils/useAndroidBackHandler";
+import * as Application from 'expo-application';
 
 export default function AccessTokenScreen() {
     useAndroidBackExit();
@@ -41,7 +43,15 @@ export default function AccessTokenScreen() {
     const handleSubmit = async () => {
         try {
             Keyboard.dismiss()
-            const res = await dispatch(verifyTokenApi(value)).unwrap();
+            
+            let deviceId = null;
+            if (Platform.OS === 'android') {
+                deviceId = Application.getAndroidId();
+            } else if (Platform.OS === 'ios') {
+                deviceId = await Application.getIosIdForVendorAsync();
+            }
+
+            const res = await dispatch(verifyTokenApi({ token: value, deviceId })).unwrap();
 
             await dispatch(
                 getLoggedInUser(res.data.customerToken)

@@ -30,16 +30,17 @@ const initialState: AuthState = {
 
 export const verifyTokenApi = createAsyncThunk<
   VerifyTokenResponse,
-  string,
+  { token: string; deviceId: string | null },
   { rejectValue: string }
 >(
   "auth/verifyToken",
-  async (accessToken, { rejectWithValue }) => {
+  async ({ token: accessToken, deviceId }, { rejectWithValue }) => {
     try {
       const fcmToken = await AsyncStorage.getItem("fcmToken");
+      console.log("Verifying token with deviceId:", deviceId, "and fcmToken:", fcmToken);
       const { data } = await axiosClient.post<VerifyTokenResponse>(
         "/users/authenticateAccessToken",
-        { accessToken, fcmToken }
+        { accessToken, fcmToken, deviceId }
       );
 
       if (data?.error_status) {

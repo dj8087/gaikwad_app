@@ -21,6 +21,8 @@ import { navigate } from "./src/navigation/navigationRef";
 import { useAuthData } from "./src/hooks/useAuthData";
 import useAppDispatch from "./src/hooks/useAppDispatch";
 import { updateFcmTokenApi } from "./src/api/authSlice";
+import { fetchProductDesigns } from "./src/api/productDesignSlice";
+import { getLatestVersionApi } from "./src/api/versionSlice";
 
 // Register background handler (must be outside of React components)
 messaging().setBackgroundMessageHandler(async remoteMessage => {
@@ -79,25 +81,76 @@ const AppRoot = () => {
       }
     });
 
+    // Helper for notification navigation
+    const handleNotificationNavigation = (remoteMessage: any) => {
+      if (!remoteMessage) return;
+
+      let payload: any = remoteMessage.data || {};
+      let notificationBody = remoteMessage.notification?.body || "";
+
+      // Attempt to parse body if it arrives as JSON string payload
+      try {
+        const parsedBody = JSON.parse(notificationBody);
+        if (parsedBody && typeof parsedBody === 'object') {
+          payload = { ...payload, ...parsedBody };
+        }
+      } catch (error) {
+        // Not JSON, ignore
+      }
+
+      const screen = payload.screen;
+      const taskId = payload.taskId;
+
+      if (screen === 'appUpdate') {
+        dispatch(getLatestVersionApi({ token: authTokenRef.current || "" }));
+      } else if (screen === 'ProductDetail' && taskId) {
+        const productId = taskId.toString();
+        dispatch(fetchProductDesigns({ productId, token: authTokenRef.current || "" }))
+          .unwrap()
+          .then(() => {
+            navigate("ProductDetail" as never, { design: { id: productId, name: "Product Details" } } as never);
+          })
+          .catch(() => {
+            navigate("Home" as never); // Fallback if API fails
+          });
+      } else if (screen) {
+        navigate(screen as never);
+      } else {
+        navigate("Home" as never);
+      }
+    };
+
     // Handle foreground notifications
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      let bodyText = remoteMessage.notification?.body || "";
+      try {
+        const parsedBody = JSON.parse(bodyText);
+        if (parsedBody && parsedBody.message) {
+          bodyText = parsedBody.message;
+        }
+      } catch (error) {}
+
       Toast.show({
         type: "success",
         text1: remoteMessage.notification?.title || "New Notification",
-        text2: remoteMessage.notification?.body || "",
+        text2: bodyText,
+        onPress: () => {
+          handleNotificationNavigation(remoteMessage);
+          Toast.hide();
+        },
       });
     });
 
     // Handle notification click when app is in the background
     messaging().onNotificationOpenedApp((remoteMessage) => {
-      navigate("Dashbaord");
+      handleNotificationNavigation(remoteMessage);
     });
 
     // Handle notification click when app is completely closed (quit state)
     messaging().getInitialNotification().then((remoteMessage) => {
       if (remoteMessage) {
         // Small delay to ensure NavigationContainer has mounted
-        setTimeout(() => navigate("Dashbaord"), 1500); 
+        setTimeout(() => handleNotificationNavigation(remoteMessage), 1500); 
       }
     });
 
