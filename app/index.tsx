@@ -2,8 +2,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import messaging from "@react-native-firebase/messaging";
 import { useFonts } from "expo-font";
-import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { NavigationContainer, NavigationIndependentTree } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
@@ -17,11 +18,11 @@ import { STORAGE_KEYS } from "./src/utils/storageKeys";
 import { toastConfig } from "./src/utils/toastConfig";
 import { useVersionCheck } from "./src/hooks/useVersionCheck";
 import UpdateModal from "./src/components/UpdateModal";
-import { navigate } from "./src/navigation/navigationRef";
+import { navigate, navigationRef } from "./src/navigation/navigationRef";
 import { useAuthData } from "./src/hooks/useAuthData";
 import useAppDispatch from "./src/hooks/useAppDispatch";
 import { updateFcmTokenApi } from "./src/api/authSlice";
-import { fetchProductDesigns } from "./src/api/productDesignSlice";
+import { fetchProductDesigns, fetchDesignDetails } from "./src/api/productDesignSlice";
 import { getLatestVersionApi } from "./src/api/versionSlice";
 
 // Register background handler (must be outside of React components)
@@ -39,11 +40,64 @@ const AppRoot = () => {
 
   const { token: authToken } = useAuthData();
   const dispatch = useAppDispatch();
-
+  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
+  const [activeNotification, setActiveNotification] = useState<any>(null);
   const authTokenRef = useRef(authToken);
   useEffect(() => {
     authTokenRef.current = authToken;
   }, [authToken]);
+
+  // Helper for notification navigation
+  const handleNotificationNavigation = useCallback((remoteMessage: any) => {
+    if (!remoteMessage) return;
+
+    let payload: any = remoteMessage.data || {};
+    let notificationBody = remoteMessage.notification?.body || "";
+
+    // Attempt to parse body if it arrives as JSON string payload
+    try {
+      const parsedBody = JSON.parse(notificationBody);
+      if (parsedBody && typeof parsedBody === 'object') {
+        payload = { ...payload, ...parsedBody };
+      }
+    } catch (error) {
+      // Not JSON, ignore
+    }
+
+    const screen = payload.screen;
+    const taskId = payload.taskId;
+
+    if (screen === 'appUpdate') {
+      dispatch(getLatestVersionApi({ token: authTokenRef.current || "" }));
+    } else if (screen === 'ProductDetail' && taskId) {
+        console.log("Loading product details");
+      const productId = taskId.toString();
+      console.log("Loading product details pdi : ", productId);
+      dispatch(fetchDesignDetails({ productId, token: authTokenRef.current || "" }))
+        .unwrap()
+        .then((designRes) => {
+          dispatch(fetchProductDesigns({ productId, token: authTokenRef.current || "" }))
+            .unwrap()
+            .then(() => {
+              console.log("Details loaded:", designRes);
+              navigate("ProductDetail", { design: designRes }); 
+              console.log("Opened:", designRes);
+            })
+            .catch((e) => {
+              console.log("Error in Images loading : ", e);
+              navigate("Home" as never); // Fallback if API fails
+            });
+        })
+        .catch(() => {
+        console.log("Error in Details loading");
+          navigate("Home" as never); // Fallback if API fails
+        });
+    } else if (screen) {
+      navigate(screen as never);
+    } else {
+      navigate("Home" as never);
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     const requestPermissionAndSetup = async () => {
@@ -81,45 +135,6 @@ const AppRoot = () => {
       }
     });
 
-    // Helper for notification navigation
-    const handleNotificationNavigation = (remoteMessage: any) => {
-      if (!remoteMessage) return;
-
-      let payload: any = remoteMessage.data || {};
-      let notificationBody = remoteMessage.notification?.body || "";
-
-      // Attempt to parse body if it arrives as JSON string payload
-      try {
-        const parsedBody = JSON.parse(notificationBody);
-        if (parsedBody && typeof parsedBody === 'object') {
-          payload = { ...payload, ...parsedBody };
-        }
-      } catch (error) {
-        // Not JSON, ignore
-      }
-
-      const screen = payload.screen;
-      const taskId = payload.taskId;
-
-      if (screen === 'appUpdate') {
-        dispatch(getLatestVersionApi({ token: authTokenRef.current || "" }));
-      } else if (screen === 'ProductDetail' && taskId) {
-        const productId = taskId.toString();
-        dispatch(fetchProductDesigns({ productId, token: authTokenRef.current || "" }))
-          .unwrap()
-          .then(() => {
-            navigate("ProductDetail" as never, { design: { id: productId, name: "Product Details" } } as never);
-          })
-          .catch(() => {
-            navigate("Home" as never); // Fallback if API fails
-          });
-      } else if (screen) {
-        navigate(screen as never);
-      } else {
-        navigate("Home" as never);
-      }
-    };
-
     // Handle foreground notifications
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       let bodyText = remoteMessage.notification?.body || "";
@@ -130,15 +145,15 @@ const AppRoot = () => {
         }
       } catch (error) {}
 
-      Toast.show({
-        type: "success",
-        text1: remoteMessage.notification?.title || "New Notification",
-        text2: bodyText,
-        onPress: () => {
-          handleNotificationNavigation(remoteMessage);
-          Toast.hide();
-        },
-      });
+      const processedMessage = {
+        ...remoteMessage,
+        notification: {
+          ...remoteMessage.notification,
+          body: bodyText
+        }
+      };
+      setActiveNotification(processedMessage);
+      setNotificationModalVisible(true);
     });
 
     // Handle notification click when app is in the background
@@ -154,15 +169,37 @@ const AppRoot = () => {
       }
     });
 
+    // --- SIMULATED NOTIFICATION (10 Seconds Timer) ---
+    const simulationTimer = setTimeout(() => {
+      const mockRemoteMessage = {
+        notification: {
+          title: "Simulated Notification",
+          body: "Click here to test product details loading",
+        },
+        data: {
+          screen: "ProductDetail",
+          taskId: "1",
+        },
+      };
+      console.log("1111");
+      // setActiveNotification(mockRemoteMessage);
+      // setNotificationModalVisible(true);
+    }, 10000);
+
     return () => {
       unsubscribe();
       unsubscribeTokenRefresh();
+      clearTimeout(simulationTimer);
     };
   }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <RootNavigator />
+      <NavigationIndependentTree>
+        <NavigationContainer ref={navigationRef}>
+          <RootNavigator />
+        </NavigationContainer>
+      </NavigationIndependentTree>
       <Toast position="bottom" config={toastConfig} />
       {versionData && (
         <UpdateModal
@@ -173,6 +210,35 @@ const AppRoot = () => {
           onLater={handleLater}
         />
       )}
+      <Modal
+        visible={notificationModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setNotificationModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{activeNotification?.notification?.title || "New Notification"}</Text>
+            <Text style={styles.modalBody}>{activeNotification?.notification?.body}</Text>
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.closeButton} onPress={() => setNotificationModalVisible(false)}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.openButton}
+                onPress={() => {
+                  setNotificationModalVisible(false);
+                  if (activeNotification) {
+                    handleNotificationNavigation(activeNotification);
+                  }
+                }}
+              >
+                <Text style={styles.openButtonText}>Open</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </GestureHandlerRootView>
   );
 }
@@ -237,7 +303,7 @@ export default function Index() {
         
         console.log("Base URL fetched and stored successfully for today.");
       }
-
+      console.log("Setting base url:", baseUrl)
       if (baseUrl) {
         const apiUrl = `${baseUrl}/v1/ajgold/site/api/`;
         setBaseUrl(apiUrl);
@@ -277,3 +343,53 @@ export default function Index() {
     </Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
+  },
+  modalBody: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 20,
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 15,
+  },
+  closeButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+  },
+  closeButtonText: {
+    color: "#666",
+    fontWeight: "600",
+  },
+  openButton: {
+    backgroundColor: "#FF6A00",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  openButtonText: {
+    color: "white",
+    fontWeight: "600",
+  },
+});

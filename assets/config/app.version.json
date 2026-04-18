@@ -1,5 +1,5 @@
 {
     "date": "2026-04-08",
-    "currentVersion": "0.0.2",
-    "releaseNote": "Major UI overhaul with new features and improved performance. Added product filtering, enhanced category display, and optimized design loading for a smoother user experience."
+    "currentVersion": "1.0.0",
+    "releaseNote": "Notification handling with action and minor bug fixes"
 }

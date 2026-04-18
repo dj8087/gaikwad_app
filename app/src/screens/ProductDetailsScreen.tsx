@@ -14,6 +14,8 @@ export default function ProductDetailScreen({ route }: any) {
   const navigation = useAppNavigation()
   const { token } = useAuthData()
 
+  console.log("ProductDetailScreen received design:", design);
+
   const { designsByProductId } = useSelector(
     (state: RootState) => state.productDesignSelector
   );

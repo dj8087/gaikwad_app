@@ -55,10 +55,10 @@ axiosClient.interceptors.response.use(
 
       if (error.response.status === 401 || isInvalidToken) {
         console.warn("Unauthorized access detected. Logging out...");
-        store.dispatch(logout());
-        setTimeout(() => {
-          navigate("AccessTokenScreen" as never);
-        }, 100);
+        // store.dispatch(logout());
+        // setTimeout(() => {
+        //   navigate("AccessTokenScreen" as never);
+        // }, 100);
       }
     }
     return Promise.reject(error);

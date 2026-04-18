@@ -109,6 +109,8 @@ const CategoryProductsScreen = () => {
     dispatch(fetchProductDesigns({ productId: design.id.toString(), token: token || "" }))
       .unwrap()
       .then(() => {
+        console.log("Design details loaded for product:", design.id);
+        console.log("Navigating to ProductDetail with design:", design);
         navigation.navigate("ProductDetail", { design });
       });
   };

@@ -30,17 +30,17 @@ const initialState: AuthState = {
 
 export const verifyTokenApi = createAsyncThunk<
   VerifyTokenResponse,
-  { token: string; deviceId: string | null },
+  string,
   { rejectValue: string }
 >(
   "auth/verifyToken",
-  async ({ token: accessToken, deviceId }, { rejectWithValue }) => {
+  async (accessToken, { rejectWithValue }) => {
     try {
       const fcmToken = await AsyncStorage.getItem("fcmToken");
-      console.log("Verifying token with deviceId:", deviceId, "and fcmToken:", fcmToken);
+      console.log("Verifying token with fcmToken:", fcmToken);
       const { data } = await axiosClient.post<VerifyTokenResponse>(
         "/users/authenticateAccessToken",
-        { accessToken, fcmToken, deviceId }
+        { accessToken, fcmToken }
       );
 
       if (data?.error_status) {
@@ -51,7 +51,7 @@ export const verifyTokenApi = createAsyncThunk<
     } catch (error: any) {
       return rejectWithValue(
         error?.message ||
-        "Network error"
+        "Network error while communication with server"
       );
     }
   }

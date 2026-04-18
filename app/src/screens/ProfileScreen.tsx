@@ -28,7 +28,24 @@ export default function ProfileScreen() {
     if (loading) return <Text style={styles.loading}>Loading Profile...</Text>;
     if (error) return <Text style={styles.error}>{error}</Text>;
 
-    if (!user) return null;
+    if (!user) {
+        return (
+            <>
+                <AppHeader title="Profile" onBackPress={()=> navigation.goBack()} />
+                <View style={[styles.container, { justifyContent: 'center' }]}>
+                    <Text style={{ textAlign: 'center', marginBottom: 20, fontSize: 16 }}>Profile data not available.</Text>
+                    <AppButton
+                        onPress={() => { 
+                            dispatch(logout()) 
+                            showSuccess("Logout success!")
+                            navigation.navigate("AccessTokenScreen")
+                        }}
+                        title="Logout"
+                    />
+                </View>
+            </>
+        );
+    }
 
     return (
         <>
