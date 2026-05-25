@@ -13,12 +13,14 @@ import React, { useState } from "react";
 import {
   Dimensions,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get("window");
 
@@ -45,6 +47,7 @@ export default function DesignSlide({
   const { token } = useAuthData();
   // const { loading } = useImageSelector(selector, token);
   const dispatch = useAppDispatch();
+  const insets = useSafeAreaInsets();
 
   const [enquiryModalVisible, setEnquiryModalVisible] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
@@ -80,7 +83,11 @@ export default function DesignSlide({
   };
 
   return (
-    <View style={styles.slide}>
+    <ScrollView 
+      style={styles.slide}
+      contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 20) + 20 }}
+      showsVerticalScrollIndicator={false}
+    >
       <TouchableOpacity activeOpacity={0.9}>
         <View style={styles.imageContainer}>
           <AppImage
@@ -194,7 +201,7 @@ export default function DesignSlide({
       )}
 
       {/* <AppLoader visible={loading} /> */}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -202,7 +209,6 @@ const styles = StyleSheet.create({
   slide: {
     width,
     backgroundColor: colors.primary,
-    paddingBottom: 20,
   },
   imageContainer: {
     width: "100%",
