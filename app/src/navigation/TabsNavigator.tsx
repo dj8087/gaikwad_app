@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
+import { Platform } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import colors from "../theme/colors";
@@ -15,9 +16,22 @@ export default function MainTabs() {
         headerShown: false,
         tabBarShowLabel: true,
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: "#999",
-        tabBarIcon: ({ color, size, focused }) => {
-          let iconName = ""
+        tabBarInactiveTintColor: "#8E8E93",
+        tabBarStyle: {
+          backgroundColor: colors.white,
+          borderTopWidth: 1,
+          borderTopColor: "#F0F0F0",
+          height: Platform.OS === "ios" ? 72 : 56,
+          paddingBottom: Platform.OS === "ios" ? 14 : 6,
+          paddingTop: 6,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "500",
+          marginTop: 2,
+        },
+        tabBarIcon: ({ color, focused }) => {
+          let iconName: keyof typeof Ionicons.glyphMap = "home";
 
           if (route.name === "Home") {
             iconName = focused ? "home" : "home-outline";

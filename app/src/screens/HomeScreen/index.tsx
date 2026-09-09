@@ -115,6 +115,7 @@ export default function HomeScreen() {
               }
               onProductPress={onProductClick}
               showFilterButton={true}
+              scrollEnabled={false}
             />
           )}
         </>

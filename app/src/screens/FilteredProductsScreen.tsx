@@ -90,7 +90,7 @@ const FilteredProductsScreen = () => {
   }
 
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <AppHeader title="Filtered Products" onBackPress={() => navigation.goBack()} />
       <View style={{ flex: 1, paddingHorizontal: 15 }}>
         <ProductSection
@@ -109,7 +109,7 @@ const FilteredProductsScreen = () => {
           }}
         />
       </View>
-    </>
+    </View>
   );
 };
 

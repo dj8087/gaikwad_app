@@ -14,8 +14,6 @@ export default function ProductDetailScreen({ route }: any) {
   const navigation = useAppNavigation()
   const { token } = useAuthData()
 
-  console.log("ProductDetailScreen received design:", design);
-
   const { designsByProductId } = useSelector(
     (state: RootState) => state.productDesignSelector
   );
@@ -28,50 +26,38 @@ export default function ProductDetailScreen({ route }: any) {
     }));
   }, [designsByProductId]);
 
+  React.useEffect(() => {
+    if (designSlides && designSlides.length > 0) {
+      designSlides.forEach((item) => {
+        const thumbUrl = getBaseUrl() + `images/imageSelectors/${item.selector}.jpg/THUMB`;
+        const midUrl = getBaseUrl() + `images/imageSelectors/${item.selector}.jpg/MID`;
+        Image.prefetch(thumbUrl).catch(() => {});
+        Image.prefetch(midUrl).catch(() => {});
+      });
+    }
+  }, [designSlides]);
+
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <AppHeader title={design.name} onBackPress={() => navigation.goBack()} />
       {
         designsByProductId?.data ?
-          <>
-            {/* Preload THUMB and MID images silently in the background */}
-            <View style={{ width: 0, height: 0, opacity: 0, overflow: "hidden" }}>
-              {designSlides.map((item) => (
-                <React.Fragment key={`preload-group-${item.selector}`}>
-                  <Image
-                    key={`preload-thumb-${item.selector}`}
-                    source={{
-                      uri: getBaseUrl() + `images/imageSelectors/${item.selector}.jpg/THUMB`,
-                      headers: token ? { token } : undefined,
-                    }}
-                  />
-                  <Image
-                    key={`preload-mid-${item.selector}`}
-                    source={{
-                      uri: getBaseUrl() + `images/imageSelectors/${item.selector}.jpg/MID`,
-                      headers: token ? { token } : undefined,
-                    }}
-                  />
-                </React.Fragment>
-              ))}
-            </View>
-            <FlatList
-              data={designSlides}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              keyExtractor={(item) => item.selector}
-              renderItem={({ item }) => (
-                <DesignSlide
-                  productName={design.name}
-                  selector={item.selector}
-                  data={item.data}
-                />
-              )}
-            />
-          </> :
+          <FlatList
+            data={designSlides}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.selector}
+            renderItem={({ item }) => (
+              <DesignSlide
+                productName={design.name}
+                selector={item.selector}
+                data={item.data}
+              />
+            )}
+          /> :
           <NoData />
       }
-    </>
+    </View>
   );
 }

@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface HeaderProps {
   title?: string;
   showBack?: boolean;
+  showLogo?: boolean;
 
   // Right icons can be one or two
   rightIcon1?: string;
@@ -36,6 +37,7 @@ interface HeaderProps {
 export default function AppHeader({
   title,
   showBack = true,
+  showLogo = false,
   rightIcon1,
   rightIcon2,
   onBackPress,
@@ -46,106 +48,117 @@ export default function AppHeader({
 }: HeaderProps) {
   const navigation = useAppNavigation();
   const insets = useSafeAreaInsets();
-  const topMargin = Platform.OS === "android" ? StatusBar.currentHeight || insets.top : insets.top;
-  
+  const topPadding = Platform.OS === "android" ? StatusBar.currentHeight || insets.top : insets.top;
+
   return (
-    <View style={[styles.header, { marginTop: topMargin }, style]}>
-      <TouchableOpacity 
-        style={styles.leftBox}
-        onPress={showBack ? (onBackPress || (() => navigation.goBack())) : undefined}
-        disabled={!showBack}
-      >
-        {showBack ? (
-          <View style={styles.leftButton}>
-            <Ionicons name="arrow-back" size={26} color={colors.darkBlue} />
+    <View style={[styles.container, { paddingTop: topPadding }, style]}>
+      <View style={styles.content}>
+        <View style={styles.leftBox}>
+          {showBack ? (
+            <TouchableOpacity
+              style={styles.leftButton}
+              onPress={onBackPress || (() => navigation.goBack())}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="arrow-back" size={24} color={colors.darkBlue} />
+            </TouchableOpacity>
+          ) : null}
+
+          {showLogo ? (
+            <Image source={assets.images.logo} style={styles.logo} resizeMode="contain" />
+          ) : null}
+
+          {!showBack && !showLogo ? <View style={{ width: 34 }} /> : null}
+        </View>
+
+        {title ? (
+          <View style={styles.titleContainer}>
+            <Text style={[styles.title, titleStyle]} numberOfLines={1} ellipsizeMode="tail">
+              {title}
+            </Text>
           </View>
         ) : (
-          <View style={{ width: 34 }} />
+          <View style={{ flex: 1 }} />
         )}
-        <Image source={assets.images.logo} style={styles.logo} resizeMode="contain" />
-      </TouchableOpacity>
 
-      {title ? (
-        <View style={styles.titleContainer} pointerEvents="none">
-          <Text style={[styles.title, titleStyle]} numberOfLines={1}>
-            {title}
-          </Text>
+        <View style={styles.rightBox}>
+          {rightIcon1 && (
+            <TouchableOpacity onPress={onRightPress1} style={styles.iconButton}>
+              <Ionicons name={rightIcon1 as any} size={24} color={colors.darkBlue} />
+            </TouchableOpacity>
+          )}
+
+          {rightIcon2 && (
+            <TouchableOpacity onPress={onRightPress2} style={styles.iconButton}>
+              <Ionicons name={rightIcon2 as any} size={24} color={colors.darkBlue} />
+            </TouchableOpacity>
+          )}
+
+          {!rightIcon1 && !rightIcon2 && <View style={{ width: 34 }} />}
         </View>
-      ) : (
-        null
-      )}
-
-      <View style={styles.rightBox}>
-        {rightIcon1 && (
-          <TouchableOpacity onPress={onRightPress1} style={styles.iconButton}>
-            <Ionicons name={rightIcon1 as any} size={26} color={colors.darkBlue} />
-          </TouchableOpacity>
-        )}
-
-        {rightIcon2 && (
-          <TouchableOpacity onPress={onRightPress2} style={styles.iconButton}>
-            <Ionicons name={rightIcon2 as any} size={26} color={colors.darkBlue} />
-          </TouchableOpacity>
-        )}
-
-        {!rightIcon1 && !rightIcon2 && <View style={{ width: 26 }} />}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    height: 61,
+  container: {
     backgroundColor: colors.white,
-    borderRadius: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  content: {
+    height: 52,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     justifyContent: "space-between",
-    marginBottom: 11,
   },
 
   leftBox: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 2,
+    minWidth: 34,
   },
 
   leftButton: {
     width: 34,
+    height: 34,
     justifyContent: "center",
     alignItems: "center",
   },
 
   logo: {
-    width: 32,
-    height: 32,
+    width: 30,
+    height: 30,
+  },
+
+  titleContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 8,
+  },
+
+  title: {
+    fontFamily: fonts.bold,
+    fontSize: 18,
+    color: colors.darkBlue,
+    textAlign: "center",
   },
 
   rightBox: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-end",
+    minWidth: 34,
     gap: 11,
   },
 
   iconButton: {
     width: 34,
+    height: 34,
     justifyContent: "center",
     alignItems: "center",
-  },
-
-  titleContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  title: {
-    fontFamily: fonts.bold,
-    fontSize: 20,
-    color: colors.darkBlue,
   },
 });

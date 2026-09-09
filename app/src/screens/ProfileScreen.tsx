@@ -1,6 +1,6 @@
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSelector } from "react-redux";
 import { logout } from "../api/authSlice";
 import AppButton from "../components/AppButton";
@@ -14,9 +14,9 @@ import { showSuccess } from "../utils/toast";
 const appVersion = require('../../../assets/config/app.version.json');
 
 interface InfoRowProps {
-  icon: string;
-  label: string;
-  value: string | number | null;
+    icon: any;
+    label: string;
+    value: string | number | null;
 }
 
 export default function ProfileScreen() {
@@ -30,27 +30,27 @@ export default function ProfileScreen() {
 
     if (!user) {
         return (
-            <>
-                <AppHeader title="Profile" onBackPress={()=> navigation.goBack()} />
+            <View style={{ flex: 1, backgroundColor: colors.white }}>
+                <AppHeader title="Profile" onBackPress={() => navigation.goBack()} />
                 <View style={[styles.container, { justifyContent: 'center' }]}>
                     <Text style={{ textAlign: 'center', marginBottom: 20, fontSize: 16 }}>Profile data not available.</Text>
                     <AppButton
-                        onPress={() => { 
-                            dispatch(logout()) 
+                        onPress={() => {
+                            dispatch(logout())
                             showSuccess("Logout success!")
                             navigation.navigate("AccessTokenScreen")
                         }}
                         title="Logout"
                     />
                 </View>
-            </>
+            </View>
         );
     }
 
     return (
-        <>
-            <AppHeader title="Profile" onBackPress={()=> navigation.goBack()} />
-            <View style={styles.container}>
+        <View style={{ flex: 1, backgroundColor: colors.white }}>
+            <AppHeader title="Profile" onBackPress={() => navigation.goBack()} />
+            <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }} showsVerticalScrollIndicator={false}>
                 <View style={styles.headerCard}>
                     <Icon name="account-circle" size={70} color="#4A90E2" />
                     <Text style={styles.name}>{user.name}</Text>
@@ -65,29 +65,27 @@ export default function ProfileScreen() {
                 </View>
 
                 <AppButton
-                    onPress={() => { 
-                        dispatch(logout()) 
+                    onPress={() => {
+                        dispatch(logout())
                         showSuccess("Logout success!")
                         navigation.navigate("AccessTokenScreen")
                     }}
                     title="Logout"
                 />
-
-                <Text style={styles.versionText}>Version {appVersion.currentVersion}</Text>
-            </View>
-        </>
+            </ScrollView>
+        </View>
     );
 }
 
 
 const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value }) => (
-  <View style={styles.row}>
-    <View style={styles.rowLeft}>
-      <Icon name={icon} size={22} color="#4A90E2" style={{ marginRight: 8 }} />
-      <Text style={styles.label}>{label}</Text>
+    <View style={styles.row}>
+        <View style={styles.rowLeft}>
+            <Icon name={icon} size={22} color="#4A90E2" style={{ marginRight: 8 }} />
+            <Text style={styles.label}>{label}</Text>
+        </View>
+        <Text style={styles.value}>{value ?? "-"}</Text>
     </View>
-    <Text style={styles.value}>{value ?? "-"}</Text>
-  </View>
 );
 
 const styles = StyleSheet.create({

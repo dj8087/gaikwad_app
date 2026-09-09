@@ -37,7 +37,6 @@ export const verifyTokenApi = createAsyncThunk<
   async (accessToken, { rejectWithValue }) => {
     try {
       const fcmToken = await AsyncStorage.getItem("fcmToken");
-      console.log("Verifying token with fcmToken:", fcmToken);
       const { data } = await axiosClient.post<VerifyTokenResponse>(
         "/users/authenticateAccessToken",
         { accessToken, fcmToken }

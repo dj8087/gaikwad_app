@@ -59,7 +59,7 @@ export default function Carousel({
     setActiveIndex(index);
   };
 
-  const carouselHeight = style?.height || 200;
+  const carouselHeight = typeof style?.height === "number" ? style.height : 200;
 
   return (
     <View style={[styles.container, style]}>

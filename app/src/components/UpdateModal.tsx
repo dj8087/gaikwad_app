@@ -38,8 +38,8 @@ const UpdateModal = ({
               <AppButton
                 title="Later"
                 onPress={onLater}
-                bg={colors.light}
-                color={colors.dark}
+                bg={colors.cream}
+                color={colors.text}
                 style={{ flex: 1, marginRight: 10 }}
               />
             )}
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 20,
-    color: colors.medium,
+    color: colors.muted,
   },
   buttonContainer: {
     flexDirection: 'row',

@@ -41,7 +41,6 @@ export default function AccessTokenScreen() {
     const handleSubmit = async () => {
         try {
             Keyboard.dismiss()
-            console.log("Submitting token:", value);
             const res = await dispatch(verifyTokenApi(value)).unwrap();
 
             await dispatch(

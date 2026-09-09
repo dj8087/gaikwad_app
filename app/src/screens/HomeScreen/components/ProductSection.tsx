@@ -39,6 +39,7 @@ interface Props {
     | null
     | undefined;
     showFilterButton?: boolean;
+    scrollEnabled?: boolean;
 }
 
 const { width } = Dimensions.get("screen");
@@ -54,6 +55,7 @@ export function ProductSection({
     loading,
     ListEmptyComponent,
     showFilterButton = false,
+    scrollEnabled = true,
 }: Props) {
     const navigation = useAppNavigation();
 
@@ -99,6 +101,7 @@ export function ProductSection({
                 onEndReachedThreshold={0.3}
                 ListFooterComponent={renderFooter}
                 ListEmptyComponent={ListEmptyComponent}
+                scrollEnabled={scrollEnabled}
             />
         </View>
     );

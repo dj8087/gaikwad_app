@@ -46,16 +46,9 @@ export default function SplashScreen1() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.appName}>My App Endpoint</Text>
-      {baseUrl && (
-        <Text style={styles.tagline} numberOfLines={1}>
-          {baseUrl}
-        </Text>
-      )}
       <ActivityIndicator
         size="large"
         color="#fff"
-        style={{ marginTop: hp(3) }}
       />
     </View>
   );

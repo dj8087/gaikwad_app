@@ -6,11 +6,12 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { NavigationContainer, NavigationIndependentTree } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 
-import { CONFIG_URL } from "./appConfig";
+import { getAppBaseUrl } from "./appConfig";
 import { setBaseUrl } from "./src/api";
 import RootNavigator from "./src/navigation/RootNavigator";
 import { persistor, store } from "./src/redux/store";
@@ -27,7 +28,6 @@ import { getLatestVersionApi } from "./src/api/versionSlice";
 
 // Register background handler (must be outside of React components)
 messaging().setBackgroundMessageHandler(async remoteMessage => {
-  console.log('Message handled in the background!', remoteMessage);
 });
 
 const AppRoot = () => {
@@ -70,26 +70,20 @@ const AppRoot = () => {
     if (screen === 'appUpdate') {
       dispatch(getLatestVersionApi({ token: authTokenRef.current || "" }));
     } else if (screen === 'ProductDetail' && taskId) {
-        console.log("Loading product details");
       const productId = taskId.toString();
-      console.log("Loading product details pdi : ", productId);
       dispatch(fetchDesignDetails({ productId, token: authTokenRef.current || "" }))
         .unwrap()
         .then((designRes) => {
           dispatch(fetchProductDesigns({ productId, token: authTokenRef.current || "" }))
             .unwrap()
             .then(() => {
-              console.log("Details loaded:", designRes);
-              navigate("ProductDetail", { design: designRes }); 
-              console.log("Opened:", designRes);
+              navigate("ProductDetail", { design: designRes });
             })
-            .catch((e) => {
-              console.log("Error in Images loading : ", e);
+            .catch(() => {
               navigate("Home" as never); // Fallback if API fails
             });
         })
         .catch(() => {
-        console.log("Error in Details loading");
           navigate("Home" as never); // Fallback if API fails
         });
     } else if (screen) {
@@ -101,24 +95,27 @@ const AppRoot = () => {
 
   useEffect(() => {
     const requestPermissionAndSetup = async () => {
-      const authStatus = await messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+      try {
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-      if (enabled) {
-        console.log("FCM Authorization status:", authStatus);
-        const token = await messaging().getToken();
-        console.log("FCM Token:", token);
-        const storedToken = await AsyncStorage.getItem("fcmToken");
-        //log authTokenRef
-        console.log("Current auth token:", authTokenRef.current);
-        if (token !== storedToken) {
-          await AsyncStorage.setItem("fcmToken", token);
-          if (authTokenRef.current) {
-            dispatch(updateFcmTokenApi({ token: authTokenRef.current, fcmToken: token }));
+        if (enabled) {
+          if (!messaging().isDeviceRegisteredForRemoteMessages) {
+            await messaging().registerDeviceForRemoteMessages();
+          }
+
+          const token = await messaging().getToken();
+          const storedToken = await AsyncStorage.getItem("fcmToken");
+          if (token !== storedToken) {
+            await AsyncStorage.setItem("fcmToken", token);
+            if (authTokenRef.current) {
+              dispatch(updateFcmTokenApi({ token: authTokenRef.current, fcmToken: token }));
+            }
           }
         }
+      } catch (error) {
       }
     };
 
@@ -143,7 +140,7 @@ const AppRoot = () => {
         if (parsedBody && parsedBody.message) {
           bodyText = parsedBody.message;
         }
-      } catch (error) {}
+      } catch (error) { }
 
       const processedMessage = {
         ...remoteMessage,
@@ -165,81 +162,65 @@ const AppRoot = () => {
     messaging().getInitialNotification().then((remoteMessage) => {
       if (remoteMessage) {
         // Small delay to ensure NavigationContainer has mounted
-        setTimeout(() => handleNotificationNavigation(remoteMessage), 1500); 
+        setTimeout(() => handleNotificationNavigation(remoteMessage), 1500);
       }
     });
-
-    // --- SIMULATED NOTIFICATION (10 Seconds Timer) ---
-    const simulationTimer = setTimeout(() => {
-      const mockRemoteMessage = {
-        notification: {
-          title: "Simulated Notification",
-          body: "Click here to test product details loading",
-        },
-        data: {
-          screen: "ProductDetail",
-          taskId: "1",
-        },
-      };
-      console.log("1111");
-      // setActiveNotification(mockRemoteMessage);
-      // setNotificationModalVisible(true);
-    }, 10000);
 
     return () => {
       unsubscribe();
       unsubscribeTokenRefresh();
-      clearTimeout(simulationTimer);
     };
   }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationIndependentTree>
-        <NavigationContainer ref={navigationRef}>
-          <RootNavigator />
-        </NavigationContainer>
-      </NavigationIndependentTree>
-      <Toast position="bottom" config={toastConfig} />
-      {versionData && (
-        <UpdateModal
-          visible={showUpdateModal}
-          isForceUpdate={versionData.isForceUpdate}
-          releaseNote={versionData.releaseNote}
-          onUpdate={handleUpdate}
-          onLater={handleLater}
-        />
-      )}
-      <Modal
-        visible={notificationModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setNotificationModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{activeNotification?.notification?.title || "New Notification"}</Text>
-            <Text style={styles.modalBody}>{activeNotification?.notification?.body}</Text>
-            <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.closeButton} onPress={() => setNotificationModalVisible(false)}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.openButton}
-                onPress={() => {
-                  setNotificationModalVisible(false);
-                  if (activeNotification) {
-                    handleNotificationNavigation(activeNotification);
-                  }
-                }}
-              >
-                <Text style={styles.openButtonText}>Open</Text>
-              </TouchableOpacity>
+    <SafeAreaProvider style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <NavigationIndependentTree>
+          <NavigationContainer ref={navigationRef}>
+            <RootNavigator />
+          </NavigationContainer>
+        </NavigationIndependentTree>
+        <Toast position="bottom" config={toastConfig} />
+        {versionData && (
+          <UpdateModal
+            visible={showUpdateModal}
+            isForceUpdate={versionData.isForceUpdate}
+            releaseNote={versionData.releaseNote}
+            onUpdate={handleUpdate}
+            onLater={handleLater}
+          />
+        )}
+        <Modal
+          visible={notificationModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setNotificationModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{activeNotification?.notification?.title || "New Notification"}</Text>
+              <Text style={styles.modalBody}>{activeNotification?.notification?.body}</Text>
+              <View style={styles.modalActions}>
+                <TouchableOpacity style={styles.closeButton} onPress={() => setNotificationModalVisible(false)}>
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.openButton}
+                  onPress={() => {
+                    setNotificationModalVisible(false);
+                    if (activeNotification) {
+                      handleNotificationNavigation(activeNotification);
+                    }
+                  }}
+                >
+                  <Text style={styles.openButtonText}>Open</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-    </GestureHandlerRootView>
+        </Modal>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 
@@ -259,63 +240,14 @@ export default function Index() {
   }, []);
 
   const bootstrapApp = async () => {
-    console.log("Starting app bootstrap...");
     try {
-      const storedConfig = await AsyncStorage.getItem(STORAGE_KEYS.APP_CONFIG);
-      let baseUrl = null;
-      const today = new Date().toISOString().split('T')[0];
-
-      console.log("Attempting to get base URL from AsyncStorage...");
-
-      if (storedConfig) {
-        try {
-          const { baseUrl: storedBaseUrl, date: storedDate } = JSON.parse(storedConfig);
-          if (storedDate === today) {
-            baseUrl = storedBaseUrl;
-            console.log("Base URL found in AsyncStorage for today:", baseUrl);
-          } else {
-            console.log("Stored Base URL is outdated.");
-          }
-        } catch (e) {
-          console.log('Could not parse stored config or it is outdated, will refetch.');
-        }
-      }
-
-      if (!baseUrl) {
-        console.log("Base URL not found for today, fetching from remote...");
-        
-        const response = await fetch(CONFIG_URL);
-
-        if (!response.ok) {
-          throw new Error("Config API failed");
-        }
-      
-        const json = await response.json();
-        const fetchedBaseUrl = json?.appEndpointBaseUrl;
-      
-        if (!fetchedBaseUrl) {
-          throw new Error("appEndpointBaseUrl missing in config");
-        }
-        
-        const newConfig = { baseUrl: fetchedBaseUrl, date: today };
-        await AsyncStorage.setItem(STORAGE_KEYS.APP_CONFIG, JSON.stringify(newConfig));
-        baseUrl = fetchedBaseUrl;
-        
-        console.log("Base URL fetched and stored successfully for today.");
-      }
-      console.log("Setting base url:", baseUrl)
-      if (baseUrl) {
-        const apiUrl = `${baseUrl}/v1/ajgold/site/api/`;
-        setBaseUrl(apiUrl);
-        console.log("Base URL set for API:", apiUrl);
-      } else {
-        console.error("Could not obtain a valid base URL.");
-      }
-
+      const rawBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || getAppBaseUrl();
+      const baseUrl = rawBaseUrl.replace(/\/$/, "");
+      const apiUrl = `${baseUrl}/v1/ajgold/site/api/`;
+      setBaseUrl(apiUrl);
     } catch (error) {
-      console.error("App bootstrap failed", error);
+      console.error("Bootstrap error:", error);
     } finally {
-      console.log("Bootstrap process finished, setting app to ready.");
       setAppReady(true);
     }
   };

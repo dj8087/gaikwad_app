@@ -24,12 +24,8 @@ export const useVersionCheck = () => {
   } = useSelector((state: RootState) => state.version);
 
   useEffect(() => {
-    console.log("useVersionCheck: Checking for app updates...");
-    console.log("Current app version:", appVersion.currentVersion);
     const checkVersion = async () => {
-      console.log("useVersionCheck: Checking for app updates...");
-      const lastCheckDate = null;//await AsyncStorage.getItem(STORAGE_KEYS.LAST_VERSION_CHECK_DATE);
-      console.log("Last version check date:", lastCheckDate);
+      const lastCheckDate = null;
       const today = new Date().toISOString().split('T')[0];
 
       if (lastCheckDate !== today) {
@@ -43,11 +39,25 @@ export const useVersionCheck = () => {
     }
   }, [dispatch, token]);
 
+  const isVersionNewer = (latest: string, current: string) => {
+    const lParts = latest.split('.').map(n => parseInt(n, 10) || 0);
+    const cParts = current.split('.').map(n => parseInt(n, 10) || 0);
+    for (let i = 0; i < Math.max(lParts.length, cParts.length); i++) {
+      const l = lParts[i] || 0;
+      const c = cParts[i] || 0;
+      if (l > c) return true;
+      if (l < c) return false;
+    }
+    return false;
+  };
+
   useEffect(() => {
-    if (versionData && versionData.currentVersion !== appVersion.currentVersion) {
-      setShowUpdateModal(true);
-      if (versionData.isForceUpdate) {
-        setIsUpdateRequired(true);
+    if (versionData && versionData.currentVersion) {
+      if (isVersionNewer(versionData.currentVersion, appVersion.currentVersion)) {
+        setShowUpdateModal(true);
+        if (versionData.isForceUpdate) {
+          setIsUpdateRequired(true);
+        }
       }
     }
   }, [versionData]);
@@ -56,7 +66,7 @@ export const useVersionCheck = () => {
     // Logic to open the app store
     const storeUrl = Platform.OS === 'android'
       ? 'market://details?id=com.ajgold.app'
-      : 'itms-apps://itunes.apple.com/app/your-app-id';
+      : 'itms-apps://itunes.apple.com/app/id6740000000';
     Linking.openURL(storeUrl).catch(err => console.error('An error occurred', err));
   };
 

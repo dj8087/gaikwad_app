@@ -15,7 +15,6 @@ export const useImageSelector = (selector: string, token?: string | null) => {
     const loadImage = async () => {
       setLoading(true);
       try {
-        console.log(`Loading image for selector: ${selector}`);
         const res = await api.get(
           `images/imageSelectors/${selector}`,
           { 
@@ -27,8 +26,6 @@ export const useImageSelector = (selector: string, token?: string | null) => {
 
         if (mounted) setImage(base64);
       } catch (e) {
-        console.log("Image load failed", e);
-        console.log("Original hook caller stack trace:", callerStack);
       } finally {
         if (mounted) setLoading(false);
       }

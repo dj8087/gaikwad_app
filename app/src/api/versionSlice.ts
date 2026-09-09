@@ -43,9 +43,7 @@ export const getLatestVersionApi = createAsyncThunk<
 >(
   "version/getLatestVersion",
   async ({ token }, { rejectWithValue }) => {
-    console.log("Fetching latest version from API...");
     if (!token) {
-      console.error("No token provided");
       return rejectWithValue("No token provided");
     }
     try {
@@ -55,7 +53,6 @@ export const getLatestVersionApi = createAsyncThunk<
           headers: { token },
         }
       );
-      console.log("Latest version fetched successfully:", data);
       if (data?.error_status) {
         return rejectWithValue(data.message || "Failed to get latest version");
       }
