@@ -3,7 +3,7 @@ import { Buffer } from "buffer";
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export const useImageSelector = (selector: string, token?: string | null) => {
+export const useImageSelector = (selector: string) => {
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -17,10 +17,7 @@ export const useImageSelector = (selector: string, token?: string | null) => {
       try {
         const res = await api.get(
           `images/imageSelectors/${selector}`,
-          { 
-            responseType: "arraybuffer",
-            headers: token ? { token } : undefined
-          }
+          { responseType: "arraybuffer" }
         );
         const base64 = Buffer.from(res.data, "binary").toString("base64");
 
@@ -36,7 +33,7 @@ export const useImageSelector = (selector: string, token?: string | null) => {
     return () => {
       mounted = false;
     };
-  }, [selector, token]);
+  }, [selector]);
 
   return { image, loading };
 };

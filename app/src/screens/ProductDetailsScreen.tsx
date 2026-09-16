@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import AppHeader from "../components/AppHeader";
 import NoData from "../components/NoDataFound";
 import useAppNavigation from "../hooks/useAppNavigation";
-import { useAuthData } from "../hooks/useAuthData";
 import { RootState } from "../redux/store";
 import { getBaseUrl } from "../utils/common";
 import DesignSlide from "./ProductDetail/components/DesignSlide";
@@ -12,8 +11,6 @@ import DesignSlide from "./ProductDetail/components/DesignSlide";
 export default function ProductDetailScreen({ route }: any) {
   const { design } = route.params;
   const navigation = useAppNavigation()
-  const { token } = useAuthData()
-
   const { designsByProductId } = useSelector(
     (state: RootState) => state.productDesignSelector
   );

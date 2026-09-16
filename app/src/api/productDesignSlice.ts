@@ -21,7 +21,6 @@ export interface DesignDetail {
   thumbnailSelector: string;
   categoryId: number;
   subCategoryId: number;
-  isHidden: boolean;
 }
 
 interface ProductDesignState {
@@ -41,11 +40,11 @@ const initialState: ProductDesignState = {
 export const fetchProductDesigns = createAsyncThunk(
   "productDesign/fetch",
   async (
-    { productId, token }: { productId: string; token: string },
+    { productId }: { productId: string },
     { rejectWithValue }
   ) => {
     try {
-      const res = await api.get(`site/product-designs/${productId}/images`, { headers: { token: token } });
+      const res = await api.get(`site/product-designs/${productId}/images`);
       return {
         productId,
         designs: res.data,
@@ -59,11 +58,11 @@ export const fetchProductDesigns = createAsyncThunk(
 export const fetchDesignDetails = createAsyncThunk(
   "productDesign/fetchDetails",
   async (
-    { productId, token }: { productId: string; token: string },
+    { productId }: { productId: string },
     { rejectWithValue }
   ) => {
     try {
-      const res = await api.get(`/designs/${productId}`, { headers: { token } });
+      const res = await api.get(`/designs/${productId}`);
       return res.data.data as DesignDetail;
     } catch (e: any) {
       return rejectWithValue(e.message || "Failed to fetch design details");

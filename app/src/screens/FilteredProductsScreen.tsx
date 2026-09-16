@@ -6,7 +6,6 @@ import AppHeader from "../components/AppHeader";
 import { ProductSection } from "../screens/HomeScreen/components/ProductSection";
 import useAppDispatch from '../hooks/useAppDispatch';
 import { fetchDesignList, fetchFilteredDesigns } from "../api/designSlice";
-import { useAuthData } from "../hooks/useAuthData";
 import NoData from "../components/NoDataFound";
 import AppLoader from "../components/AppLoader";
 import useAppNavigation from '../hooks/useAppNavigation';
@@ -16,7 +15,6 @@ const FilteredProductsScreen = () => {
   const route = useRoute();
   const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
-  const { token } = useAuthData();
   const params = route.params as any || {};
 
   const {
@@ -53,7 +51,6 @@ const FilteredProductsScreen = () => {
     }
     dispatch(
       fetchFilteredDesigns({
-        token,
         page: newPage,
         size: 10,
         category,
@@ -80,7 +77,7 @@ const FilteredProductsScreen = () => {
   };
 
   const onProductClick = (design: any) => {
-    dispatch(fetchProductDesigns({ productId: design.id.toString(), token })).unwrap().then(() => {
+    dispatch(fetchProductDesigns({ productId: design.id.toString() })).unwrap().then(() => {
       navigation.navigate("ProductDetail", { design })
     })
   }

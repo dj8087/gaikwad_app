@@ -33,12 +33,10 @@ const initialState: CategoryState = {
 // -------------------- THUNK --------------------
 export const fetchCategories = createAsyncThunk(
   "categories/fetch",
-  async ({ token }: { token: string }, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const url = "/categories";
-      const res = await api.get(url, {
-        headers: { token },
-      });
+      const res = await api.get(url);
       return res.data?.data || [];
     } catch (error: any) {
       const msg =

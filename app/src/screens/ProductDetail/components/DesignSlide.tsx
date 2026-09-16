@@ -1,22 +1,12 @@
-import { createProductInquiry } from "@/app/src/api/productInquirySlice";
-import AppButton from "@/app/src/components/AppButton";
 import AppImage from "@/app/src/components/AppImage";
-import AppLoader from "@/app/src/components/AppLoader";
-import useAppDispatch from "@/app/src/hooks/useAppDispatch";
-import { useAuthData } from "@/app/src/hooks/useAuthData";
-import { useImageSelector } from "@/app/src/hooks/useImageSelector";
 import colors from "@/app/src/theme/colors";
 import { getBaseUrl } from "@/app/src/utils/common";
-import { showError } from "@/app/src/utils/toast";
-import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React from "react";
 import {
   Dimensions,
-  Modal,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -44,43 +34,12 @@ export default function DesignSlide({
   data,
   productName,
 }: Props) {
-  const { token } = useAuthData();
-  // const { loading } = useImageSelector(selector, token);
-  const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
-
-  const [enquiryModalVisible, setEnquiryModalVisible] = useState(false);
-  const [successModalVisible, setSuccessModalVisible] = useState(false);
-  const [enquirySent, setEnquirySent] = useState(false);
-  const [inquiryMsg, setInquiryMsg] = useState("");
 
   const thumbUrl = getBaseUrl() + `images/imageSelectors/${selector}.jpg/THUMB`;
   const imageUrl = getBaseUrl() + `images/imageSelectors/${selector}.jpg/MID`;
   const openimageUrl =
     getBaseUrl() + `images/imageSelectors/${selector}.jpg/FULL`;
-
-  const handleSendEnquiry = () => {
-    //log
-    dispatch(
-      createProductInquiry({
-        siteProductDesignId: data?.siteProductDesignId,
-        token: token,
-        inquiryMsg: inquiryMsg,
-        imageId: data?.id,
-      })
-    )
-      .unwrap()
-      .then((res) => {
-        if (res.code != 200) {
-          showError(res.message);
-        } else {
-          setEnquiryModalVisible(false);
-          setInquiryMsg("");
-          setEnquirySent(true);
-          setSuccessModalVisible(true);
-        }
-      });
-  };
 
   return (
     <ScrollView 
@@ -132,75 +91,6 @@ export default function DesignSlide({
         </View>
       </View>
 
-      {/* --- Modals --- */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={enquiryModalVisible}
-        onRequestClose={() => setEnquiryModalVisible(false)}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Send an Enquiry</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={setInquiryMsg}
-              value={inquiryMsg}
-              placeholder="Optional: Add a message for the seller..."
-              multiline
-              placeholderTextColor="#999"
-            />
-            <AppButton
-              title="Send Enquiry"
-              onPress={handleSendEnquiry}
-              style={styles.modalButton}
-            />
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => setEnquiryModalVisible(false)}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={successModalVisible}
-        onRequestClose={() => setSuccessModalVisible(false)}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              You will get call from AJ Gold Sale Office
-            </Text>
-            <AppButton
-              title="OK"
-              onPress={() => setSuccessModalVisible(false)}
-              style={styles.modalButton}
-            />
-          </View>
-        </View>
-      </Modal>
-      {/* --- End Modals --- */}
-
-      {enquirySent ? (
-        <View style={styles.enquirySentContainer}>
-          <Ionicons name="checkmark-circle" size={24} color="#0A7D4F" />
-          <Text style={styles.enquirySentText}>Enquiry Sent</Text>
-        </View>
-      ) : (
-        <AppButton
-          title="Enquiry"
-          onPress={() => setEnquiryModalVisible(true)}
-          style={styles.enquiryBtn}
-          textStyle={styles.enquiryText}
-        />
-      )}
-
-      {/* <AppLoader visible={loading} /> */}
     </ScrollView>
   );
 }
@@ -254,87 +144,5 @@ const styles = StyleSheet.create({
   },
   value: {
     fontWeight: "500",
-  },
-  enquiryBtn: {
-    marginHorizontal: 16,
-    borderRadius: 14,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  enquiryText: {
-    fontSize: 18,
-    color: colors.primary,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 25,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: "90%",
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.text,
-  },
-  input: {
-    height: 100,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    marginBottom: 20,
-    padding: 10,
-    width: "100%",
-    borderRadius: 10,
-    textAlignVertical: "top",
-    backgroundColor: "#f9f9f9",
-  },
-  modalButton: {
-    borderRadius: 10,
-    width: "100%",
-    paddingVertical: 12,
-    backgroundColor: colors.primary,
-  },
-  cancelButton: {
-    marginTop: 10,
-    backgroundColor: "transparent",
-  },
-  cancelButtonText: {
-    color: colors.text,
-    fontSize: 16,
-  },
-  enquirySentContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: 16,
-    borderRadius: 14,
-    backgroundColor: "#E6F2ED",
-    paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: "#0A7D4F",
-  },
-  enquirySentText: {
-    fontSize: 18,
-    color: "#0A7D4F",
-    marginLeft: 10,
-    fontWeight: "600",
   },
 });

@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import assets from "../assets";
-import { useAuthData } from "../hooks/useAuthData";
 import colors from '../theme/colors';
 import PinchPanZoomImage from "./ZoomableImage";
 
@@ -42,8 +41,6 @@ export default function AppImage({
   const [loading, setLoading] = useState(true);
   const [showFallback, setShowFallback] = useState(false);
   const [open, setOpen] = useState(false);
-  const { token } = useAuthData()
-
   const scale = React.useRef(new Animated.Value(0)).current
 
   const handlePinch = Animated.event([{ nativeEvent: { scale } }])
@@ -84,7 +81,6 @@ export default function AppImage({
             <Image
               source={{
                 uri: thumbUri,
-                headers: { token },
               }}
               style={[styles.image, { position: "absolute" }]}
               resizeMode="cover"
@@ -93,7 +89,6 @@ export default function AppImage({
           <Image
             source={{
               uri,
-              headers: { token },
             }}
             style={styles.image}
             resizeMode="cover"
@@ -129,7 +124,7 @@ export default function AppImage({
       <Modal visible={open} transparent animated animationType="fade">
         <View style={styles.modalContainer}>
           <GestureHandlerRootView style={styles.modalRoot}>
-            <PinchPanZoomImage uri={openImageUri} midUri={uri} token={token} />
+            <PinchPanZoomImage uri={openImageUri} midUri={uri} />
           </GestureHandlerRootView>
 
           <TouchableOpacity

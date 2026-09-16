@@ -10,7 +10,6 @@ import AppLoader from "../components/AppLoader";
 import NoData from "../components/NoDataFound";
 import useAppDispatch from "../hooks/useAppDispatch";
 import useAppNavigation from "../hooks/useAppNavigation";
-import { useAuthData } from "../hooks/useAuthData";
 import { RootState } from "../redux/store";
 import CategoryList from "../screens/HomeScreen/components/CategoryList";
 import SubCategoryList from "../screens/HomeScreen/components/SubCategoryList";
@@ -21,7 +20,6 @@ const CategoryProductsScreen = () => {
   const route = useRoute();
   const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
-  const { token } = useAuthData();
   const params = (route.params as any) || {};
 
   const {
@@ -45,10 +43,10 @@ const CategoryProductsScreen = () => {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    if (token && (!categories || categories.length === 0)) {
-      dispatch(fetchCategories({ token }));
+    if (!categories || categories.length === 0) {
+      dispatch(fetchCategories());
     }
-  }, [dispatch, token, categories]);
+  }, [dispatch, categories]);
 
   useEffect(() => {
     if (categories && categories.length > 0) {
@@ -78,7 +76,6 @@ const CategoryProductsScreen = () => {
     }
     dispatch(
       fetchFilteredDesigns({
-        token: token || "",
         page: newPage,
         size: 10,
         category: categoryId || undefined,
@@ -106,7 +103,7 @@ const CategoryProductsScreen = () => {
   };
 
   const onProductClick = (design: any) => {
-    dispatch(fetchProductDesigns({ productId: design.id.toString(), token: token || "" }))
+    dispatch(fetchProductDesigns({ productId: design.id.toString() }))
       .unwrap()
       .then(() => {
         navigation.navigate("ProductDetail", { design });

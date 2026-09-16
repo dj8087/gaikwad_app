@@ -17,12 +17,10 @@ const initialState: BannerState = {
 // -------------------- THUNK --------------------
 export const fetchBanners = createAsyncThunk(
     "banners/fetch",
-    async ({ token }: { token: string }, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
         try {
             const url = "/images/banners";
-            const res = await api.get(url, {
-                headers: { token },
-            });
+            const res = await api.get(url);
 
             return res.data || [];
         } catch (error: any) {

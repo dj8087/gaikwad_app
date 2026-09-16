@@ -18,16 +18,13 @@ const initialState: ImageSelectorState = {
 export const fetchImageSelector = createAsyncThunk(
   "imageSelector/fetch",
   async (
-    { selector, token }: { selector: string; token: string },
+    { selector }: { selector: string },
     { rejectWithValue }
   ) => {
     try {
       const res = await api.get(
         `images/imageSelectors/${selector}.jpg`,
-        {
-          headers: { token },
-          responseType: "arraybuffer",
-        }
+        { responseType: "arraybuffer" }
       );
 
       const base64 =

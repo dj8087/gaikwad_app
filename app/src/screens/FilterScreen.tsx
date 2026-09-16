@@ -6,11 +6,9 @@ import AppButton from '../components/AppButton';
 import Slider from '@react-native-community/slider';
 import useAppNavigation from '../hooks/useAppNavigation';
 import useAppDispatch from '../hooks/useAppDispatch';
-import { useAuthData } from '../hooks/useAuthData';
 import { useSelector } from 'react-redux';
 import { fetchCategories } from '../api/categorySlice';
 import { RootState } from '../redux/store';
-// import useAuthData from '../hooks/useAuthData';
 
 const DropdownModal = ({ visible, items, onSelect, onClose }: { visible: boolean, items: any[], onSelect: (item: any) => void, onClose: () => void }) => (
     <Modal
@@ -45,7 +43,6 @@ const DropdownModal = ({ visible, items, onSelect, onClose }: { visible: boolean
 const FilterScreen = () => {
     const navigation = useAppNavigation();
     const dispatch = useAppDispatch();
-    const { token } = useAuthData();
     const { categories, loading, error } = useSelector((state: RootState) => state.category);
 
     const [searchText, setSearchText] = useState('');
@@ -58,10 +55,8 @@ const FilterScreen = () => {
     const [isSubCategoryModalVisible, setSubCategoryModalVisible] = useState(false);
 
     useEffect(() => {
-        if (token) {
-            dispatch(fetchCategories({ token }));
-        }
-    }, [dispatch, token]);
+        dispatch(fetchCategories());
+    }, [dispatch]);
 
     useEffect(() => {
         if (selectedCategory && selectedCategory !== 'All' && selectedCategory.subCat) {

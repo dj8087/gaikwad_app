@@ -11,7 +11,6 @@ import { Ionicons } from "@expo/vector-icons";
 import SeeAllHeader from "@/app/src/components/SeeAllHeader";
 import { fonts } from "@/app/src/theme/fonts";
 import colors from "@/app/src/theme/colors";
-import { useAuthData } from "@/app/src/hooks/useAuthData";
 import { getBaseUrl } from "@/app/src/utils/common";
 import useAppNavigation from "@/app/src/hooks/useAppNavigation";
 
@@ -33,7 +32,6 @@ export default function CategoryList({
     onCategoryPress,
     activeCategoryId,
 }: Props) {
-    const { token } = useAuthData()
     const flatListRef = React.useRef<FlatList>(null);
     const navigation = useAppNavigation();
 
@@ -65,7 +63,6 @@ export default function CategoryList({
                     <Image
                         source={{
                             uri: getImageUrl,
-                            headers: { token },
                         }}
                         style={styles.image}
                         resizeMode="cover"

@@ -1,62 +1,24 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import authReducer from "../api/authSlice";
 import designReducer from "../api/designSlice";
-import { default as imageSelectoreReducer, default as imageSelectorSlice } from "../api/imageSelectorSlice";
+import imageSelectorReducer from "../api/imageSelectorSlice";
 import productDesignReducer from "../api/productDesignSlice";
-import productInquiryReducer from "../api/productInquirySlice";
-import profileReducer from "../api/profileSlice";
-import vistorsReducer from "../api/visitorsSlice";
 import bannerReducer from "../api/bannerSlice";
-import versionReducer from "../api/versionSlice";
-
-import {
-    FLUSH,
-    PAUSE,
-    PERSIST,
-    persistReducer,
-    persistStore,
-    PURGE,
-    REGISTER,
-    REHYDRATE,
-} from "redux-persist";
-
-const persistConfig = {
-    key: "root",
-    storage: AsyncStorage,
-    whitelist: ["auth", "profile"],
-};
 
 import categoryReducer from "../api/categorySlice";
 
 const rootReducer = combineReducers({
-    auth: authReducer,
-    profile: profileReducer,
     designs: designReducer,
-    imageSelector: imageSelectoreReducer,
+    imageSelector: imageSelectorReducer,
     productDesignSelector: productDesignReducer,
-    vistorsReducer: vistorsReducer,
-    imageSelectorReducer: imageSelectorSlice,
-    productInquiryReducer: productInquiryReducer,
     category: categoryReducer,
     banner: bannerReducer,
-    version: versionReducer,
 });
-
-const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-    reducer: persistedReducer,
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: {
-                ignoredActions: [FLUSH, PAUSE, REHYDRATE, PERSIST, REGISTER, PURGE],
-            },
-        }),
+    reducer: rootReducer,
 });
 
-export const persistor = persistStore(store);
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 

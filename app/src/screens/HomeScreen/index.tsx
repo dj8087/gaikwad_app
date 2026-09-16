@@ -10,7 +10,6 @@ import AppLoader from "../../components/AppLoader";
 import Carousel from "../../components/ImageCarousel";
 import useAppDispatch from "../../hooks/useAppDispatch";
 import useAppNavigation from "../../hooks/useAppNavigation";
-import { useAuthData } from "../../hooks/useAuthData";
 import { RootState } from "../../redux/store";
 import colors from "../../theme/colors";
 import { useAndroidBackExit } from "../../utils/useAndroidBackHandler";
@@ -23,8 +22,6 @@ import { getBaseUrl } from "../../utils/common";
 export default function HomeScreen() {
   const navigation = useAppNavigation();
   const dispatch = useAppDispatch();
-  const { token } = useAuthData();
-
   useAndroidBackExit();
 
   // -------------------- SELECTORS --------------------
@@ -42,12 +39,10 @@ export default function HomeScreen() {
 
   // -------------------- API CALLS --------------------
   useEffect(() => {
-    if (!token) return;
-
-    dispatch(fetchDesignList({ token, size: 10, page: 0 }));
-    dispatch(fetchCategories({ token }));
-    dispatch(fetchBanners({ token }));
-  }, [token, dispatch]);
+    dispatch(fetchDesignList({ size: 10, page: 0 }));
+    dispatch(fetchCategories());
+    dispatch(fetchBanners());
+  }, [dispatch]);
 
   // -------------------- HANDLERS --------------------
   const onProductClick = useCallback(
@@ -55,7 +50,6 @@ export default function HomeScreen() {
       dispatch(
         fetchProductDesigns({
           productId: design.id.toString(),
-          token,
         })
       )
         .unwrap()
@@ -63,7 +57,7 @@ export default function HomeScreen() {
           navigation.navigate("ProductDetail", { design });
         });
     },
-    [dispatch, navigation, token]
+    [dispatch, navigation]
   );
 
   const handleCategoryPress = useCallback(

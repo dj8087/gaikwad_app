@@ -46,11 +46,9 @@ export const fetchDesignList = createAsyncThunk(
   "designs/fetchHome",
   async (
     {
-      token,
       page = 0,
       size = 10,
     }: {
-      token: string;
       page?: number;
       size?: number;
     },
@@ -59,9 +57,7 @@ export const fetchDesignList = createAsyncThunk(
     try {
       const url = `designs?page=${page}&size=${size}`;
 
-      const res = await api.get(url, {
-        headers: { token },
-      });
+      const res = await api.get(url);
 
       return res.data?.data;
     } catch (error: any) {
@@ -83,7 +79,6 @@ export const fetchFilteredDesigns = createAsyncThunk(
   "designs/fetchFiltered",
   async (
     {
-      token,
       page = 0,
       size = 10,
       category,
@@ -92,7 +87,6 @@ export const fetchFilteredDesigns = createAsyncThunk(
       weightRangeEnd,
       searchQuery
     }: {
-      token: string;
       page?: number;
       size?: number;
       category?: number;
@@ -112,9 +106,7 @@ export const fetchFilteredDesigns = createAsyncThunk(
       if (weightRangeEnd) url += `&weightRangeEnd=${weightRangeEnd}`;
       if (searchQuery) url += `&searchQuery=${encodeURIComponent(searchQuery)}`;
 
-      const res = await api.get(url, {
-        headers: { token },
-      });
+      const res = await api.get(url);
 
       return res.data?.data;
     } catch (error: any) {
