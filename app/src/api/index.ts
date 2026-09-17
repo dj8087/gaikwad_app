@@ -1,7 +1,7 @@
 // src/api/axiosClient.ts
 import axios from "axios";
 
-const rawBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || "https://api.ajgold.in";
+const rawBaseUrl = "https://api.ajgold.in";
 const defaultApiUrl = `${rawBaseUrl.replace(/\/$/, "")}/v1/ajgold/site/api/`;
 
 const axiosClient = axios.create({
