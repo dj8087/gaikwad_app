@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { useRoute } from "@react-navigation/native";
-import ScreenWrapper from "../components/ScreenWrapper";
 import AppHeader from "../components/AppHeader";
 import { ProductSection } from "../screens/HomeScreen/components/ProductSection";
 import useAppDispatch from '../hooks/useAppDispatch';
-import { fetchDesignList, fetchFilteredDesigns } from "../api/designSlice";
+import { fetchFilteredDesigns } from "../api/designSlice";
 import NoData from "../components/NoDataFound";
 import AppLoader from "../components/AppLoader";
 import useAppNavigation from '../hooks/useAppNavigation';
 import { fetchProductDesigns } from "../api/productDesignSlice";
+import { showError } from "../utils/toast";
 
 const FilteredProductsScreen = () => {
   const route = useRoute();
@@ -66,6 +66,9 @@ const FilteredProductsScreen = () => {
         setPage(res.currentPage);
         setTotalPages(res.totalPages);
       })
+      .catch(() => {
+        showError("Unable to load products. Please try again.");
+      })
       .finally(() => {
         setLoading(false);
         setInitialLoading(false);
@@ -79,7 +82,9 @@ const FilteredProductsScreen = () => {
   const onProductClick = (design: any) => {
     dispatch(fetchProductDesigns({ productId: design.id.toString() })).unwrap().then(() => {
       navigation.navigate("ProductDetail", { design })
-    })
+    }).catch(() => {
+      showError("Unable to load product details. Please try again.");
+    });
   }
 
   if (initialLoading) {

@@ -23,15 +23,19 @@ export interface DesignDetail {
   subCategoryId: number;
 }
 
+interface ProductDesignResponse {
+  data?: Record<string, ProductDesignVariant>;
+}
+
 interface ProductDesignState {
-  designsByProductId: Record<string, Record<string, ProductDesignVariant>>;
+  designsByProductId: ProductDesignResponse | null;
   currentDesignDetail: DesignDetail | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: ProductDesignState = {
-  designsByProductId: {},
+  designsByProductId: null,
   currentDesignDetail: null,
   loading: false,
   error: null,

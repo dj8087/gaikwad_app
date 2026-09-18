@@ -18,6 +18,7 @@ import CategoryList from "./components/CategoryList";
 import Header from "./components/Header";
 import { ProductSection } from "./components/ProductSection";
 import { getBaseUrl } from "../../utils/common";
+import { showError } from "../../utils/toast";
 
 export default function HomeScreen() {
   const navigation = useAppNavigation();
@@ -55,6 +56,9 @@ export default function HomeScreen() {
         .unwrap()
         .then(() => {
           navigation.navigate("ProductDetail", { design });
+        })
+        .catch(() => {
+          showError("Unable to load product details. Please try again.");
         });
     },
     [dispatch, navigation]

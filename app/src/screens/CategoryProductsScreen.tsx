@@ -15,6 +15,7 @@ import CategoryList from "../screens/HomeScreen/components/CategoryList";
 import SubCategoryList from "../screens/HomeScreen/components/SubCategoryList";
 import { ProductSection } from "../screens/HomeScreen/components/ProductSection";
 import colors from "../theme/colors";
+import { showError } from "../utils/toast";
 
 const CategoryProductsScreen = () => {
   const route = useRoute();
@@ -92,6 +93,9 @@ const CategoryProductsScreen = () => {
         setPage(res.currentPage);
         setTotalPages(res.totalPages);
       })
+      .catch(() => {
+        showError("Unable to load products. Please try again.");
+      })
       .finally(() => {
         setLoading(false);
         setInitialLoading(false);
@@ -107,6 +111,9 @@ const CategoryProductsScreen = () => {
       .unwrap()
       .then(() => {
         navigation.navigate("ProductDetail", { design });
+      })
+      .catch(() => {
+        showError("Unable to load product details. Please try again.");
       });
   };
 

@@ -1,7 +1,6 @@
 import AppImage from "@/app/src/components/AppImage";
 import { fonts } from "@/app/src/theme/fonts";
 import { getBaseUrl } from "@/app/src/utils/common";
-import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 const { width } = Dimensions.get("window");
@@ -11,8 +10,10 @@ interface Props {
     onPress?: () => void;
 }
 
-const ProductCard = React.memo(({ item, onPress }: Props) => {
+const ProductCard = React.memo(function ProductCard({ item, onPress }: Props) {
     const getImageUrl = getBaseUrl() + 'images/imageSelectors/' + item.thumbnailSelector + '.jpg/THUMB'
+    const startWeight = Number(item.productionRangeStart);
+    const endWeight = Number(item.productionRangeEnd);
     return (
         <TouchableOpacity
             activeOpacity={0.9}
@@ -34,10 +35,6 @@ const ProductCard = React.memo(({ item, onPress }: Props) => {
                 </Text>
             </View>
 
-            <TouchableOpacity style={styles.heartBtn}>
-                <Ionicons name="heart-outline" size={18} />
-            </TouchableOpacity>
-
             <Text style={styles.name} numberOfLines={1}>
                 {item.name}
             </Text>
@@ -47,7 +44,9 @@ const ProductCard = React.memo(({ item, onPress }: Props) => {
             </Text> */}
 
             <Text style={styles.price}>
-                {item.productionRangeStart.toFixed(1)} gm - {item.productionRangeEnd.toFixed(1)} gm
+                {Number.isFinite(startWeight) && Number.isFinite(endWeight)
+                    ? `${startWeight.toFixed(1)} gm - ${endWeight.toFixed(1)} gm`
+                    : "Weight unavailable"}
             </Text>
         </TouchableOpacity>
     );
@@ -72,11 +71,6 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 180,
         borderRadius: 12,
-    },
-    heartBtn: {
-        position: "absolute",
-        top: 8,
-        right: 8,
     },
     name: {
         marginTop: 8,
