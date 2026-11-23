@@ -4,20 +4,19 @@
     "slug": "AJ",
     "version": "1.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./app/src/assets/icons/icon.png",
     "scheme": "jewellaryshop",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "icon": "./app/src/assets/icons/icon.png",
       "supportsTablet": false,
       "bundleIdentifier": "com.ajgold"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/splash-icon.png",
-        "backgroundImage": "./assets/images/splash-icon.png",
-        "monochromeImage": "./assets/images/splash-icon.png"
+        "backgroundColor": "#000000",
+        "foregroundImage": "./app/src/assets/icons/icon.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
