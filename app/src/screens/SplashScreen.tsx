@@ -9,7 +9,7 @@ export default function SplashScreen() {
   const navigation = useAppNavigation()
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace("Dashbaord");
+      navigation.replace("ProductTypeSelection");
     }, 2000);
     return () => clearTimeout(timer);
   }, [navigation]);

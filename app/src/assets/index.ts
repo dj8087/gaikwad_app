@@ -3,6 +3,7 @@
 const assets = {
   images: {
     logo: require('../assets/images/logo.png'),
+    productTypeIcon: require('../../../assets/images/icon.png'),
     logoGif: require('../assets/images/AJ.gif'),
     icon: require('../assets/images/icon.jpeg'),
     ring: require('../assets/images/ring.png'),

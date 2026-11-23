@@ -2,8 +2,9 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from ".";
+import type { RootState } from "../redux/store";
 
-interface Design {
+export interface Design {
   id: any;
   name: string;
   nameM?: string;
@@ -26,6 +27,12 @@ interface DesignState {
   filterTotalPages: number;
 }
 
+interface DesignPageResponse {
+  designs: Design[];
+  currentPage: number;
+  totalPages: number;
+}
+
 const initialState: DesignState = {
   loading: false,
   designs: [],
@@ -42,7 +49,11 @@ const initialState: DesignState = {
 // ============================
 // 🔵 HOME DESIGNS THUNK
 // ============================
-export const fetchDesignList = createAsyncThunk(
+export const fetchDesignList = createAsyncThunk<
+  DesignPageResponse,
+  { page?: number; size?: number },
+  { state: RootState }
+>(
   "designs/fetchHome",
   async (
     {
@@ -52,12 +63,14 @@ export const fetchDesignList = createAsyncThunk(
       page?: number;
       size?: number;
     },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
     try {
-      const url = `designs?page=${page}&size=${size}`;
-
-      const res = await api.get(url);
+      const pt = getState().productType.selected;
+      if (!pt) {
+        throw new Error("Select a product type before loading products.");
+      }
+      const res = await api.get("designs", { params: { page, size, pt } });
 
       return res.data?.data;
     } catch (error: any) {
@@ -75,7 +88,19 @@ export const fetchDesignList = createAsyncThunk(
 // ============================
 // 🟡 FILTER DESIGNS THUNK
 // ============================
-export const fetchFilteredDesigns = createAsyncThunk(
+export const fetchFilteredDesigns = createAsyncThunk<
+  DesignPageResponse,
+  {
+    page?: number;
+    size?: number;
+    category?: number;
+    subCategory?: number;
+    weightRangeStart?: number;
+    weightRangeEnd?: number;
+    searchQuery?: string;
+  },
+  { state: RootState }
+>(
   "designs/fetchFiltered",
   async (
     {
@@ -95,18 +120,21 @@ export const fetchFilteredDesigns = createAsyncThunk(
       weightRangeEnd?: number;
       searchQuery?: string;
     },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
     try {
-      let url = `designs?page=${page}&size=${size}`;
+      const pt = getState().productType.selected;
+      if (!pt) {
+        throw new Error("Select a product type before loading products.");
+      }
+      const params: Record<string, string | number> = { page, size, pt };
+      if (category) params.category = category;
+      if (subCategory) params.subCategory = subCategory;
+      if (weightRangeStart) params.weightRangeStart = weightRangeStart;
+      if (weightRangeEnd) params.weightRangeEnd = weightRangeEnd;
+      if (searchQuery) params.searchQuery = searchQuery;
 
-      if (category) url += `&category=${category}`;
-      if (subCategory) url += `&subCategory=${subCategory}`;
-      if (weightRangeStart) url += `&weightRangeStart=${weightRangeStart}`;
-      if (weightRangeEnd) url += `&weightRangeEnd=${weightRangeEnd}`;
-      if (searchQuery) url += `&searchQuery=${encodeURIComponent(searchQuery)}`;
-
-      const res = await api.get(url);
+      const res = await api.get("designs", { params });
 
       return res.data?.data;
     } catch (error: any) {
@@ -123,6 +151,7 @@ const designSlice = createSlice({
   name: "designs",
   initialState,
   reducers: {
+    clearDesigns: () => initialState,
     clearFilteredDesigns: (state) => {
       state.filteredDesigns = [];
       state.filterCurrentPage = 0;
@@ -187,5 +216,5 @@ const designSlice = createSlice({
   },
 });
 
-export const { clearFilteredDesigns } = designSlice.actions;
+export const { clearDesigns, clearFilteredDesigns } = designSlice.actions;
 export default designSlice.reducer;

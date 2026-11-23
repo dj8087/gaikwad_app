@@ -25,12 +25,14 @@ interface Props {
     categories: Category[];
     onCategoryPress?: (item: Category) => void;
     activeCategoryId?: number | null;
+    title?: string;
 }
 
 export default function CategoryList({
     categories,
     onCategoryPress,
     activeCategoryId,
+    title = "Category",
 }: Props) {
     const flatListRef = React.useRef<FlatList>(null);
     const navigation = useAppNavigation();
@@ -83,7 +85,7 @@ export default function CategoryList({
 
     return (
         <View style={{ marginTop: 10 }}>
-            <SeeAllHeader title="Category" showSeeAll={false} onPress={() => navigation.navigate("ProductFilter" as never)} />
+            <SeeAllHeader title={title} showSeeAll={false} onPress={() => navigation.navigate("ProductFilter" as never)} />
 
             <FlatList
                 ref={flatListRef}

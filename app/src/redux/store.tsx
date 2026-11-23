@@ -4,6 +4,7 @@ import designReducer from "../api/designSlice";
 import imageSelectorReducer from "../api/imageSelectorSlice";
 import productDesignReducer from "../api/productDesignSlice";
 import bannerReducer from "../api/bannerSlice";
+import productTypeReducer from "../api/productTypeSlice";
 
 import categoryReducer from "../api/categorySlice";
 
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
     productDesignSelector: productDesignReducer,
     category: categoryReducer,
     banner: bannerReducer,
+    productType: productTypeReducer,
 });
 
 export const store = configureStore({

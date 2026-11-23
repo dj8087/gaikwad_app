@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from ".";
+import type { RootState } from "../redux/store";
 
 export interface ProductDesignVariant {
   id: number;
@@ -41,14 +42,24 @@ const initialState: ProductDesignState = {
   error: null,
 };
 
-export const fetchProductDesigns = createAsyncThunk(
+export const fetchProductDesigns = createAsyncThunk<
+  { productId: string; designs: ProductDesignResponse },
+  { productId: string },
+  { state: RootState }
+>(
   "productDesign/fetch",
   async (
     { productId }: { productId: string },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
     try {
-      const res = await api.get(`site/product-designs/${productId}/images`);
+      const pt = getState().productType.selected;
+      if (!pt) {
+        throw new Error("Select a product type before loading product details.");
+      }
+      const res = await api.get(`site/product-designs/${productId}/images`, {
+        params: { pt },
+      });
       return {
         productId,
         designs: res.data,
@@ -59,14 +70,22 @@ export const fetchProductDesigns = createAsyncThunk(
   }
 );
 
-export const fetchDesignDetails = createAsyncThunk(
+export const fetchDesignDetails = createAsyncThunk<
+  DesignDetail,
+  { productId: string },
+  { state: RootState }
+>(
   "productDesign/fetchDetails",
   async (
     { productId }: { productId: string },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
     try {
-      const res = await api.get(`/designs/${productId}`);
+      const pt = getState().productType.selected;
+      if (!pt) {
+        throw new Error("Select a product type before loading product details.");
+      }
+      const res = await api.get(`/designs/${productId}`, { params: { pt } });
       return res.data.data as DesignDetail;
     } catch (e: any) {
       return rejectWithValue(e.message || "Failed to fetch design details");
@@ -77,7 +96,9 @@ export const fetchDesignDetails = createAsyncThunk(
 const productDesignSlice = createSlice({
   name: "productDesign",
   initialState,
-  reducers: {},
+  reducers: {
+    clearProductDesign: () => initialState,
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchProductDesigns.pending, (state) => {
@@ -106,4 +127,5 @@ const productDesignSlice = createSlice({
   },
 });
 
+export const { clearProductDesign } = productDesignSlice.actions;
 export default productDesignSlice.reducer;

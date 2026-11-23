@@ -12,6 +12,7 @@ const axiosClient = axios.create({
 // --- REQUEST INTERCEPTOR ---
 axiosClient.interceptors.request.use(
   (config) => {
+    console.log("Backend request URL:", axiosClient.getUri(config));
     return config;
   },
   (error) => {
