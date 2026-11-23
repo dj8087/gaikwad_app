@@ -6,11 +6,13 @@ import Dashbaord from './TabsNavigator';
 import FilteredProductsScreen from '../screens/FilteredProductsScreen';
 import CategoryProductsScreen from '../screens/CategoryProductsScreen';
 import FilterScreen from '../screens/FilterScreen';
+import AccessCodeScreen from '../screens/AccessCodeScreen';
 
 const Stack = createNativeStackNavigator();
 
 export type RootStackParamList = {
-  SplashScreen: undefined;
+  Splash: undefined;
+  AccessCode: undefined;
   Dashbaord: undefined;
   ProductDetail: {};
   FilteredProducts: {};
@@ -23,6 +25,7 @@ export default function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Splash" component={SplashScreen} />
+      <Stack.Screen name="AccessCode" component={AccessCodeScreen} />
       <Stack.Screen name="Dashbaord" component={Dashbaord} />
       <Stack.Screen name="ProductDetail" component={ProductDetailsScreen} />
       <Stack.Screen name="FilteredProducts" component={FilteredProductsScreen} />

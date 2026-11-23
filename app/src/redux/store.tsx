@@ -6,8 +6,10 @@ import productDesignReducer from "../api/productDesignSlice";
 import bannerReducer from "../api/bannerSlice";
 
 import categoryReducer from "../api/categorySlice";
+import authReducer from "../api/authSlice";
 
 const rootReducer = combineReducers({
+    auth: authReducer,
     designs: designReducer,
     imageSelector: imageSelectorReducer,
     productDesignSelector: productDesignReducer,

@@ -9,9 +9,18 @@ const axiosClient = axios.create({
   timeout: 30000,
 });
 
+let customerToken: string | null = null;
+
+export const setCustomerToken = (token: string | null) => {
+  customerToken = token;
+};
+
 // --- REQUEST INTERCEPTOR ---
 axiosClient.interceptors.request.use(
   (config) => {
+    if (customerToken) {
+      config.headers.set("token", customerToken);
+    }
     return config;
   },
   (error) => {

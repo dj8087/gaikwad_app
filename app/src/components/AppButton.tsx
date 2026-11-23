@@ -39,7 +39,7 @@ export default function AppButton({
       style={[
         styles.button,
         {
-          backgroundColor: disabled ? "red" : bg,
+          backgroundColor: disabled ? "#B8B8B8" : bg,
           borderRadius: radius,
           width: full ? "80%" : undefined,
           alignSelf:"center",
