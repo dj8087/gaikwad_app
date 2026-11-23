@@ -1,6 +1,7 @@
 
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import api from ".";
+import type { RootState } from "../redux/store";
 
 // -------------------- MODELS --------------------
 interface SubCategory {
@@ -31,12 +32,19 @@ const initialState: CategoryState = {
 };
 
 // -------------------- THUNK --------------------
-export const fetchCategories = createAsyncThunk(
+export const fetchCategories = createAsyncThunk<
+  Category[],
+  void,
+  { state: RootState; rejectValue: string }
+>(
   "categories/fetch",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const url = "/categories";
-      const res = await api.get(url);
+      const pt = getState().productType.selected;
+      if (!pt) {
+        throw new Error("Select a product type before loading categories.");
+      }
+      const res = await api.get("/categories", { params: { pt } });
       return res.data?.data || [];
     } catch (error: any) {
       const msg =
@@ -52,7 +60,9 @@ export const fetchCategories = createAsyncThunk(
 const categorySlice = createSlice({
   name: "categories",
   initialState,
-  reducers: {},
+  reducers: {
+    clearCategories: () => initialState,
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCategories.pending, (state) => {
@@ -70,4 +80,5 @@ const categorySlice = createSlice({
   },
 });
 
+export const { clearCategories } = categorySlice.actions;
 export default categorySlice.reducer;

@@ -24,7 +24,7 @@ export default function SplashScreen() {
 
         if (customerToken) {
           dispatch(restoreCustomerToken(customerToken));
-          navigation.replace("Dashbaord");
+          navigation.replace("ProductTypeSelection");
         } else {
           navigation.replace("AccessCode");
         }

@@ -33,7 +33,7 @@ export default function AccessCodeScreen() {
 
     try {
       await dispatch(authenticateAccessCode(code)).unwrap();
-      navigation.replace("Dashbaord");
+      navigation.replace("ProductTypeSelection");
     } catch (error) {
       showError(typeof error === "string" ? error : "Unable to verify the access code.");
     }

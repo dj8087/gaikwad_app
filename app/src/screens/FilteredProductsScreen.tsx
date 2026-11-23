@@ -4,7 +4,7 @@ import { useRoute } from "@react-navigation/native";
 import AppHeader from "../components/AppHeader";
 import { ProductSection } from "../screens/HomeScreen/components/ProductSection";
 import useAppDispatch from '../hooks/useAppDispatch';
-import { fetchFilteredDesigns } from "../api/designSlice";
+import { fetchFilteredDesigns, type Design } from "../api/designSlice";
 import NoData from "../components/NoDataFound";
 import AppLoader from "../components/AppLoader";
 import useAppNavigation from '../hooks/useAppNavigation';
@@ -28,7 +28,7 @@ const FilteredProductsScreen = () => {
   const onEndReachedCalledDuringMomentum = useRef(true);
 
   const [page, setPage] = useState(0);
-  const [filteredDesigns, setFilteredDesigns] = useState([]);
+  const [filteredDesigns, setFilteredDesigns] = useState<Design[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);

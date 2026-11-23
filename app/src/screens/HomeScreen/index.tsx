@@ -38,6 +38,16 @@ export default function HomeScreen() {
     (state: RootState) => state.banner
   );
 
+  const selectedProductType = useSelector(
+    (state: RootState) => state.productType.selected
+  );
+  const categoryTitle =
+    selectedProductType === "TJ"
+      ? "Temple Jewellery Category"
+      : selectedProductType === "KT"
+        ? "Kolhapuri Thushi Category"
+        : "Category";
+
   // -------------------- API CALLS --------------------
   useEffect(() => {
     dispatch(fetchDesignList({ size: 10, page: 0 }));
@@ -96,6 +106,7 @@ export default function HomeScreen() {
           <CategoryList 
             categories={categories} 
             onCategoryPress={handleCategoryPress} 
+            title={categoryTitle}
           />
 
           {!error && (

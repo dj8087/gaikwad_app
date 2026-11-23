@@ -7,14 +7,18 @@ import bannerReducer from "../api/bannerSlice";
 
 import categoryReducer from "../api/categorySlice";
 import authReducer from "../api/authSlice";
+import profileReducer from "../api/profileSlice";
+import productTypeReducer from "../api/productTypeSlice";
 
 const rootReducer = combineReducers({
     auth: authReducer,
+    profile: profileReducer,
     designs: designReducer,
     imageSelector: imageSelectorReducer,
     productDesignSelector: productDesignReducer,
     category: categoryReducer,
     banner: bannerReducer,
+    productType: productTypeReducer,
 });
 
 export const store = configureStore({

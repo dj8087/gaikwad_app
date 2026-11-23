@@ -7,12 +7,14 @@ import FilteredProductsScreen from '../screens/FilteredProductsScreen';
 import CategoryProductsScreen from '../screens/CategoryProductsScreen';
 import FilterScreen from '../screens/FilterScreen';
 import AccessCodeScreen from '../screens/AccessCodeScreen';
+import ProductTypeSelectionScreen from '../screens/ProductTypeSelectionScreen';
 
 const Stack = createNativeStackNavigator();
 
 export type RootStackParamList = {
   Splash: undefined;
   AccessCode: undefined;
+  ProductTypeSelection: undefined;
   Dashbaord: undefined;
   ProductDetail: {};
   FilteredProducts: {};
@@ -26,6 +28,7 @@ export default function RootNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="AccessCode" component={AccessCodeScreen} />
+      <Stack.Screen name="ProductTypeSelection" component={ProductTypeSelectionScreen} />
       <Stack.Screen name="Dashbaord" component={Dashbaord} />
       <Stack.Screen name="ProductDetail" component={ProductDetailsScreen} />
       <Stack.Screen name="FilteredProducts" component={FilteredProductsScreen} />

@@ -65,6 +65,20 @@ export const authenticateAccessCode = createAsyncThunk<
   }
 });
 
+export const logoutCustomer = createAsyncThunk<
+  void,
+  void,
+  { rejectValue: string }
+>("auth/logoutCustomer", async (_, { rejectWithValue }) => {
+  try {
+    await SecureStore.deleteItemAsync(CUSTOMER_TOKEN_KEY);
+  } catch (error) {
+    return rejectWithValue(
+      error instanceof Error ? error.message : "Unable to clear saved catalogue access."
+    );
+  }
+});
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -88,6 +102,12 @@ const authSlice = createSlice({
       .addCase(authenticateAccessCode.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Unable to verify the access code.";
+      })
+      .addCase(logoutCustomer.fulfilled, (state) => {
+        state.customerToken = null;
+        state.loading = false;
+        state.error = null;
+        setApiCustomerToken(null);
       });
   },
 });
