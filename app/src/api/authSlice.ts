@@ -29,13 +29,13 @@ const initialState: AuthState = {
 
 export const authenticateAccessCode = createAsyncThunk<
   string,
-  string,
+  { accessCode: string; fcmToken?: string | null },
   { rejectValue: string }
->("auth/authenticateAccessCode", async (accessCode, { rejectWithValue }) => {
+>("auth/authenticateAccessCode", async ({ accessCode, fcmToken }, { rejectWithValue }) => {
   try {
     const response = await api.post<AuthenticationResponse>(
       "users/authenticateAccessToken",
-      { accessToken: accessCode }
+      { accessToken: accessCode, fcmToken }
     );
     const result = response.data;
     const customerToken = result.data?.customerToken;

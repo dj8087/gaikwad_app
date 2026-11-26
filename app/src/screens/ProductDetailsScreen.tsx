@@ -1,20 +1,45 @@
-import React, { useMemo } from "react";
-import { FlatList, Image, View } from "react-native";
+import React, { useEffect, useMemo, useRef } from "react";
+import { Alert, FlatList, Image, View } from "react-native";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useSelector } from "react-redux";
 import AppHeader from "../components/AppHeader";
 import AppLoader from "../components/AppLoader";
 import NoData from "../components/NoDataFound";
 import useAppNavigation from "../hooks/useAppNavigation";
+import type { RootStackParamList } from "../navigation/RootNavigator";
 import { RootState } from "../redux/store";
 import { getBaseUrl } from "../utils/common";
 import DesignSlide from "./ProductDetail/components/DesignSlide";
 
-export default function ProductDetailScreen({ route }: any) {
-  const { design } = route.params;
+type ProductDetailScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  "ProductDetail"
+>;
+
+export default function ProductDetailScreen({
+  route,
+}: ProductDetailScreenProps) {
+  const { design, notificationMessage } = route.params;
   const navigation = useAppNavigation()
+  const shownNotificationMessage = useRef(false);
   const { designsByProductId, loading, error } = useSelector(
     (state: RootState) => state.productDesignSelector
   );
+
+  useEffect(() => {
+    if (!notificationMessage || shownNotificationMessage.current) {
+      return;
+    }
+
+    shownNotificationMessage.current = true;
+    navigation.setParams({ notificationMessage: undefined });
+    Alert.alert(
+      "Product update",
+      notificationMessage,
+      [{ text: "OK" }],
+      { cancelable: false }
+    );
+  }, [navigation, notificationMessage]);
 
   const designSlides = useMemo(() => {
     const data = designsByProductId?.data;

@@ -14,13 +14,22 @@ import RootNavigator from "./src/navigation/RootNavigator";
 import { store } from "./src/redux/store";
 import { toastConfig } from "./src/utils/toastConfig";
 import { navigationRef } from "./src/navigation/navigationRef";
+import {
+  processPendingNotification,
+  startNotificationListeners,
+} from "./src/notifications/notificationListener";
 
 const AppRoot = () => {
+  useEffect(() => startNotificationListeners(), []);
+
   return (
     <SafeAreaProvider style={{ flex: 1 }}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <NavigationIndependentTree>
-          <NavigationContainer ref={navigationRef}>
+          <NavigationContainer
+            ref={navigationRef}
+            onReady={processPendingNotification}
+          >
             <RootNavigator />
           </NavigationContainer>
         </NavigationIndependentTree>

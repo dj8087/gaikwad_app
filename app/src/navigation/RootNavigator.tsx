@@ -9,19 +9,21 @@ import FilterScreen from '../screens/FilterScreen';
 import AccessCodeScreen from '../screens/AccessCodeScreen';
 import ProductTypeSelectionScreen from '../screens/ProductTypeSelectionScreen';
 
-const Stack = createNativeStackNavigator();
-
 export type RootStackParamList = {
   Splash: undefined;
   AccessCode: undefined;
   ProductTypeSelection: undefined;
   Dashbaord: undefined;
-  ProductDetail: {};
+  ProductDetail: {
+    design: { id: string | number; name: string };
+    notificationMessage?: string;
+  };
   FilteredProducts: {};
   CategoryProductsScreen: {};
   ProductFilter: {};
 };
 
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
   return (

@@ -82,7 +82,6 @@ export default function ProfileScreen() {
             <View style={styles.infoCard}>
               <InfoRow icon="phone" label="Mobile" value={user.mobile} />
               <InfoRow icon="city" label="City" value={user.city} />
-              <InfoRow icon="identifier" label="ERP Customer ID" value={user.erpCustomerId} />
               <InfoRow icon="clock-outline" label="Last Visited" value={user.lastVisited} />
             </View>
           </>

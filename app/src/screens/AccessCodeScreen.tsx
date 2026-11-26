@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  PermissionsAndroid,
   Platform,
   StyleSheet,
   Text,
@@ -17,7 +18,7 @@ import useAppNavigation from "../hooks/useAppNavigation";
 import { RootState } from "../redux/store";
 import colors from "../theme/colors";
 import { fonts } from "../theme/fonts";
-import { showError } from "../utils/toast";
+import { showError, showWarning } from "../utils/toast";
 
 export default function AccessCodeScreen() {
   const dispatch = useAppDispatch();
@@ -31,9 +32,70 @@ export default function AccessCodeScreen() {
       return;
     }
 
+    let fcmToken: string | null = null;
+    let notificationWarning: string | null = null;
+
+    if (Platform.OS === "ios" || Platform.OS === "android") {
+      try {
+        const {
+          AuthorizationStatus,
+          getMessaging,
+          getToken,
+          isDeviceRegisteredForRemoteMessages,
+          registerDeviceForRemoteMessages,
+          requestPermission,
+        } = await import("@react-native-firebase/messaging");
+        const messagingInstance = getMessaging();
+        let permissionGranted = true;
+
+        if (Platform.OS === "ios") {
+          const status = await requestPermission(messagingInstance);
+          permissionGranted =
+            status === AuthorizationStatus.AUTHORIZED ||
+            status === AuthorizationStatus.PROVISIONAL;
+          if (permissionGranted && !isDeviceRegisteredForRemoteMessages(messagingInstance)) {
+            await registerDeviceForRemoteMessages(messagingInstance);
+          }
+        } else if (Number(Platform.Version) >= 33) {
+          const status = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+            {
+              title: "Allow notifications",
+              message: "Notifications help keep you updated about the AJ Gold catalogue.",
+              buttonPositive: "Allow",
+              buttonNegative: "Not now",
+            }
+          );
+          permissionGranted = status === PermissionsAndroid.RESULTS.GRANTED;
+        }
+
+        if (permissionGranted) {
+          fcmToken = await getToken(messagingInstance);
+          if (__DEV__) {
+            console.log(`${Platform.OS} FCM token:`, fcmToken);
+          }
+        } else {
+          notificationWarning = "Notifications are disabled. You can enable them in Settings.";
+        }
+      } catch {
+        notificationWarning = "Could not enable notifications. You can continue without them.";
+      }
+    }
+
     try {
-      await dispatch(authenticateAccessCode(code)).unwrap();
+      await dispatch(
+        authenticateAccessCode({
+          accessCode: code,
+          fcmToken:
+            Platform.OS === "ios" || Platform.OS === "android"
+              ? fcmToken
+              : undefined,
+        })
+      ).unwrap();
       navigation.replace("ProductTypeSelection");
+      if (notificationWarning) {
+        showWarning(notificationWarning);
+      }
     } catch (error) {
       showError(typeof error === "string" ? error : "Unable to verify the access code.");
     }
