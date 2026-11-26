@@ -11,7 +11,9 @@ import {
   View
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useSelector } from "react-redux";
 import assets from "../assets";
+import { RootState } from "../redux/store";
 import colors from '../theme/colors';
 import PinchPanZoomImage from "./ZoomableImage";
 
@@ -41,6 +43,8 @@ export default function AppImage({
   const [loading, setLoading] = useState(true);
   const [showFallback, setShowFallback] = useState(false);
   const [open, setOpen] = useState(false);
+  const token = useSelector((state: RootState) => state.auth.customerToken);
+  const imageHeaders = token ? { token } : undefined;
   const scale = React.useRef(new Animated.Value(0)).current
 
   const handlePinch = Animated.event([{ nativeEvent: { scale } }])
@@ -81,6 +85,7 @@ export default function AppImage({
             <Image
               source={{
                 uri: thumbUri,
+                headers: imageHeaders,
               }}
               style={[styles.image, { position: "absolute" }]}
               resizeMode="cover"
@@ -89,6 +94,7 @@ export default function AppImage({
           <Image
             source={{
               uri,
+              headers: imageHeaders,
             }}
             style={styles.image}
             resizeMode="cover"
@@ -124,7 +130,7 @@ export default function AppImage({
       <Modal visible={open} transparent animated animationType="fade">
         <View style={styles.modalContainer}>
           <GestureHandlerRootView style={styles.modalRoot}>
-            <PinchPanZoomImage uri={openImageUri} midUri={uri} />
+            <PinchPanZoomImage uri={openImageUri} midUri={uri} token={token} />
           </GestureHandlerRootView>
 
           <TouchableOpacity

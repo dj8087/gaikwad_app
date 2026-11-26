@@ -9,6 +9,7 @@ import categoryReducer from "../api/categorySlice";
 import authReducer from "../api/authSlice";
 import profileReducer from "../api/profileSlice";
 import productTypeReducer from "../api/productTypeSlice";
+import productInquiryReducer from "../api/productInquirySlice";
 
 const rootReducer = combineReducers({
     auth: authReducer,
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
     category: categoryReducer,
     banner: bannerReducer,
     productType: productTypeReducer,
+    productInquiry: productInquiryReducer,
 });
 
 export const store = configureStore({

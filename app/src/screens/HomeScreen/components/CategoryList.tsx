@@ -8,11 +8,13 @@ import {
     TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
 import SeeAllHeader from "@/app/src/components/SeeAllHeader";
 import { fonts } from "@/app/src/theme/fonts";
 import colors from "@/app/src/theme/colors";
 import { getBaseUrl } from "@/app/src/utils/common";
 import useAppNavigation from "@/app/src/hooks/useAppNavigation";
+import { RootState } from "@/app/src/redux/store";
 
 interface Category {
     id: number;
@@ -36,6 +38,7 @@ export default function CategoryList({
 }: Props) {
     const flatListRef = React.useRef<FlatList>(null);
     const navigation = useAppNavigation();
+    const token = useSelector((state: RootState) => state.auth.customerToken);
 
     const sortedCategories = React.useMemo(() => {
         if (activeCategoryId == null || !categories) return categories;
@@ -65,6 +68,7 @@ export default function CategoryList({
                     <Image
                         source={{
                             uri: getImageUrl,
+                            headers: token ? { token } : undefined,
                         }}
                         style={styles.image}
                         resizeMode="cover"

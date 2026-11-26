@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import colors from "../theme/colors";
@@ -10,6 +11,8 @@ import FilterScreen from "../screens/FilterScreen";
 const Tab = createBottomTabNavigator();
 
 export default function MainTabs() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -21,8 +24,8 @@ export default function MainTabs() {
           backgroundColor: colors.white,
           borderTopWidth: 1,
           borderTopColor: "#F0F0F0",
-          height: Platform.OS === "ios" ? 72 : 56,
-          paddingBottom: Platform.OS === "ios" ? 14 : 6,
+          height: Platform.OS === "ios" ? 72 : 56 + insets.bottom,
+          paddingBottom: Platform.OS === "ios" ? 14 : 6 + insets.bottom,
           paddingTop: 6,
         },
         tabBarLabelStyle: {
