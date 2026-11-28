@@ -1,5 +1,7 @@
 // src/api/axiosClient.ts
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
+import { Platform } from "react-native";
+import { appVersion } from "../utils/appVersion";
 
 const rawBaseUrl = "https://api.ajgold.in";
 const defaultApiUrl = `${rawBaseUrl.replace(/\/$/, "")}/v1/ajgold/site/api/`;
@@ -18,7 +20,10 @@ export const setCustomerToken = (token: string | null) => {
 // --- REQUEST INTERCEPTOR ---
 axiosClient.interceptors.request.use(
   (config) => {
-    if (customerToken) {
+    config.headers.set("X-App-Version", appVersion);
+    config.headers.set("X-App-Platform", Platform.OS);
+
+    if (customerToken && config.headers.get("token") !== null) {
       config.headers.set("token", customerToken);
     }
     return config;
@@ -40,6 +45,14 @@ axiosClient.interceptors.response.use(
 
 export const setBaseUrl = (baseURL: string) => {
   axiosClient.defaults.baseURL = baseURL;
+};
+
+export const getPublic = <T>(
+  url: string,
+  config: AxiosRequestConfig = {}
+) => {
+  const headers = { ...config.headers, token: null };
+  return axiosClient.get<T>(url, { ...config, headers });
 };
 
 export default axiosClient;

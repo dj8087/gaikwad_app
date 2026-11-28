@@ -25,6 +25,33 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## App update policy API
+
+The mobile app checks `GET /api/app/update-policy` on startup and after returning
+to the foreground, using the configured API host (`EXPO_PUBLIC_API_BASE_URL`, or
+`https://api.ajgold.in` by default). It sends URL-encoded `platform` (`ios` or
+`android`) and the installed `currentVersion` query parameters without a
+customer token.
+
+The endpoint should return JSON with `enabled`, `latestVersion`,
+`minimumSupportedVersion`, `storeUrl`, and an optional `message`. Versions are
+numeric major/minor/patch values (a missing minor or patch component is treated
+as zero for the app's current `1.0` version). When enabled, no prompt is shown
+if the installed version is at least `latestVersion`; otherwise, versions below
+`minimumSupportedVersion` require an update and other older versions receive an
+optional prompt. `storeUrl` must be an HTTPS App Store listing for iOS or Google
+Play listing for Android. Invalid responses and request failures are ignored so
+they do not block normal app use.
+
+## Testing against a local API server
+
+The ignored `.env.local` file points the app to `http://192.168.1.9:3880` for
+physical-device testing. Ensure the laptop and device are on the same network
+and that the server listens on the laptop's LAN interface. Remove or change this
+local override before preparing a production build; otherwise the configured
+host falls back to `https://api.ajgold.in`. iOS local-network access and local
+HTTP transport are enabled in the Expo iOS configuration.
+
 ## Get a fresh project
 
 When you're ready, run:

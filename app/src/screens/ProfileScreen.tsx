@@ -12,6 +12,7 @@ import useAppNavigation from "../hooks/useAppNavigation";
 import { RootState } from "../redux/store";
 import colors from "../theme/colors";
 import { fonts } from "../theme/fonts";
+import { appVersion } from "../utils/appVersion";
 import { showError, showSuccess } from "../utils/toast";
 
 type InfoRowProps = {
@@ -95,6 +96,7 @@ export default function ProfileScreen() {
           disabled={loggingOut}
           style={styles.logoutButton}
         />
+        <Text style={styles.version}>Version {appVersion}</Text>
       </ScrollView>
     </View>
   );
@@ -192,5 +194,12 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     width: "100%",
+  },
+  version: {
+    color: colors.muted,
+    fontFamily: fonts.regular,
+    fontSize: 13,
+    marginTop: 16,
+    textAlign: "center",
   },
 });

@@ -18,8 +18,12 @@ import {
   processPendingNotification,
   startNotificationListeners,
 } from "./src/notifications/notificationListener";
+import AppUpdatePrompt from "./src/components/AppUpdatePrompt";
+import useAppUpdateCheck from "./src/update/useAppUpdateCheck";
 
 const AppRoot = () => {
+  const { policy, dismissOptionalUpdate } = useAppUpdateCheck();
+
   useEffect(() => startNotificationListeners(), []);
 
   return (
@@ -33,6 +37,7 @@ const AppRoot = () => {
             <RootNavigator />
           </NavigationContainer>
         </NavigationIndependentTree>
+        <AppUpdatePrompt policy={policy} onLater={dismissOptionalUpdate} />
         <Toast position="bottom" config={toastConfig} />
       </GestureHandlerRootView>
     </SafeAreaProvider>
@@ -56,8 +61,7 @@ export default function Index() {
 
   const bootstrapApp = async () => {
     try {
-      const rawBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || getAppBaseUrl();
-      const baseUrl = rawBaseUrl.replace(/\/$/, "");
+      const baseUrl = getAppBaseUrl();
       const apiUrl = `${baseUrl}/v1/ajgold/site/api/`;
       setBaseUrl(apiUrl);
     } catch (error) {
